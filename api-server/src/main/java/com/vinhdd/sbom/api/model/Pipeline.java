@@ -6,17 +6,18 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-@Table(name = "projects")
+@Table(name = "pipelines")
 @Data
-public class Project {
+public class Pipeline {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String name;
+    private String projectId;
     @CreationTimestamp
-    @Column(updatable = false)
     private LocalDateTime createdAt;
     @UpdateTimestamp
     private LocalDateTime updatedAt;
