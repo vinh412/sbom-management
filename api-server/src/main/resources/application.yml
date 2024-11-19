@@ -1,12 +1,12 @@
 server:
-  port: 8888
+  port: ${PORT:8080}
 spring:
   application:
     name: sbom-api-server
   datasource:
-    url: jdbc:postgresql://localhost:5430/sbom
-    username: sbom
-    password: sbom
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:sbom}
+    username: ${DB_USERNAME:sbom}
+    password: ${DB_PASSWORD:sbom}
     hikari:
       maximum-pool-size: 10
       connection-timeout: 30000
@@ -15,10 +15,10 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
-    open-in-view: true
+      ddl-auto: none
+    open-in-view: false
 
 jwt:
-  SECRET_KEY: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  SECRET_KEY: ${JWT_SECRET_KEY:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
   EXPIRATION_TIME: 3600000
   EXPIRATION_TIME_REMEMBER_ME: 3600000
