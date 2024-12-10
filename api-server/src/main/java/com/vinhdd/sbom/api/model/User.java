@@ -2,7 +2,10 @@ package com.vinhdd.sbom.api.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Data
@@ -11,9 +14,21 @@ import java.util.Set;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(length = 36)
     private String id;
+    @Column(unique = true)
     private String username;
+    private String fullname;
     private String password;
+    private String email;
+    private String phoneNumber;
+    private String description;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

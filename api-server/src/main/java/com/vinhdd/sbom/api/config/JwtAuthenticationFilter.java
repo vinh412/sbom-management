@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        log.info("Request: uri = {}, method = {}, authHeader = {}", request.getRequestURI(), request.getMethod(), request.getHeader("Authorization"));
+        log.info("[REQUEST] method = {}, uri = {}, params = {}, authHeader = {}", request.getMethod(), request.getRequestURI(), request.getQueryString(), request.getHeader("Authorization"));
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String username;

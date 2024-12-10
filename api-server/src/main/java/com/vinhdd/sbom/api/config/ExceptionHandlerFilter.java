@@ -1,38 +1,49 @@
 package com.vinhdd.sbom.api.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vinhdd.sbom.api.dto.out.ApiResponse;
+import com.vinhdd.sbom.api.exception.CommonException;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ExceptionHandlerFilter extends OncePerRequestFilter {
-
-
-    @Autowired
-    @Qualifier("handlerExceptionResolver")
-    private HandlerExceptionResolver resolver;
-
+    private final ObjectMapper objectMapper;
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+                                    @NonNull FilterChain filterChain) throws IOException {
 
         try {
             filterChain.doFilter(request, response);
+        } catch (CommonException e) {
+            handleException(response, e, e.getHttpStatus().value());
         } catch (Exception e) {
-            log.error("Spring Security Filter Chain Exception: {}", e.getMessage());
-            resolver.resolveException(request, response, null, e);
+            handleException(response, e, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void handleException(HttpServletResponse response, Exception e, int httpStatus) throws IOException {
+        log.error("{}", e.getMessage());
+        response.setStatus(httpStatus);
+        response.setContentType("application/json");
+        response.getWriter().write(
+                objectMapper.writeValueAsString(
+                        ApiResponse.builder()
+                                .success(false)
+                                .message(e.getMessage())
+                                .build()
+                )
+        );
     }
 }

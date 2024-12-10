@@ -12,6 +12,24 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @ControllerAdvice
 public class RestControlExceptionHandle {
+    @ExceptionHandler({BadRequestException.class})
+    @ResponseBody
+    public ResponseEntity<ApiResponse<?>> resolveBadRequestException(BadRequestException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.builder()
+                        .message(e.getMessage())
+                        .success(false)
+                        .build());
+    }
+
+    @ExceptionHandler({NotFoundException.class})
+    @ResponseBody
+    public ResponseEntity<ApiResponse<?>> resolveNotFoundException(NotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.builder()
+                .message(e.getMessage())
+                .success(false)
+                .build());
+    }
+
     @ExceptionHandler({CommonException.class})
     @ResponseBody
     public ResponseEntity<ApiResponse<?>> resolveCommonException(CommonException e) {
@@ -48,7 +66,7 @@ public class RestControlExceptionHandle {
     public ResponseEntity<ApiResponse<?>> resolveAccessDeniedException(AccessDeniedException e) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
                 ApiResponse.builder()
-                        .message("Access denied")
+                        .message("Access denied: " + e.getMessage())
                         .success(false)
                         .build()
         );

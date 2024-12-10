@@ -1,57 +1,91 @@
 package com.vinhdd.sbom.api.service.impl;
 
+import com.vinhdd.sbom.api.dto.PipelineDTO;
 import com.vinhdd.sbom.api.dto.in.CreatePipelineDtoIn;
-import com.vinhdd.sbom.api.dto.out.PipelineDTO;
-import com.vinhdd.sbom.api.model.Pipeline;
-import com.vinhdd.sbom.api.model.Project;
+import com.vinhdd.sbom.api.dto.in.PageRequestDtoIn;
+import com.vinhdd.sbom.api.dto.out.DependencyDtoOut;
+import com.vinhdd.sbom.api.dto.queryout.BuildDtoQueryOut;
+import com.vinhdd.sbom.api.dto.queryout.ComponentDtoQueryOut;
+import com.vinhdd.sbom.api.dto.sbomfile.SbomDto;
+import com.vinhdd.sbom.api.exception.NotFoundException;
+import com.vinhdd.sbom.api.model.*;
+import com.vinhdd.sbom.api.repository.BuildRepository;
+import com.vinhdd.sbom.api.repository.ComponentRepository;
 import com.vinhdd.sbom.api.repository.PipelineRepository;
 import com.vinhdd.sbom.api.repository.ProjectRepository;
+import com.vinhdd.sbom.api.service.BuildService;
 import com.vinhdd.sbom.api.service.PipelineService;
+import com.vinhdd.sbom.api.service.SbomService;
+import com.vinhdd.sbom.api.util.helper.QueryResultMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PipelineServiceImpl implements PipelineService {
+    private final QueryResultMapper queryResultMapper;
+    private final BuildService buildService;
     private final PipelineRepository pipelineRepository;
     private final ProjectRepository projectRepository;
+    private final BuildRepository buildRepository;
+    private final SbomService sbomService;
+    private final ComponentRepository componentRepository;
 
     @Override
-    public List<PipelineDTO> findAllByProjectId(String projectId){
-        return pipelineRepository.findAllByProjectId(projectId)
-                .stream()
-                .map(pipeline -> PipelineDTO.builder()
-                        .id(pipeline.getId())
-                        .name(pipeline.getName())
-                        .createdAt(pipeline.getCreatedAt())
-                        .updatedAt(pipeline.getUpdatedAt())
-                        .build())
-                .toList();
+    public Page<PipelineDTO> getAllByProjectName(String projectName, PageRequestDtoIn pageRequestDtoIn) {
+        Sort sort = Sort.by(pageRequestDtoIn.getSortBy());
+        if (pageRequestDtoIn.getOrder().equals("desc")) {
+            sort = sort.descending();
+        }
+        Pageable pageable = PageRequest.of(pageRequestDtoIn.getPage() - 1, pageRequestDtoIn.getSize(), sort);
+        return pipelineRepository.findAllByProjectNameAndNameContainingIgnoreCase(projectName, pageRequestDtoIn.getSearch(), pageable)
+                .map(PipelineDTO::from);
     }
 
     @Override
-    public Pipeline getPipelineById(int id) {
-        return null;
-    }
-
-    @Override
-    public Pipeline createPipeline(CreatePipelineDtoIn pipelineDtoIn) {
+    public PipelineDTO create(String projectName, CreatePipelineDtoIn createPipelineDtoIn) {
+        Project project = projectRepository.findByName(projectName).orElseThrow(() -> new NotFoundException("Project not found"));
         Pipeline pipeline = new Pipeline();
-        pipeline.setName(pipelineDtoIn.getName());
-        pipeline.setProjectId(pipelineDtoIn.getProjectId());
-        return pipelineRepository.save(pipeline);
+        pipeline.setName(createPipelineDtoIn.getName());
+        pipeline.setDescription(createPipelineDtoIn.getDescription());
+        pipeline.setProject(project);
+        return PipelineDTO.from(pipelineRepository.save(pipeline));
     }
 
     @Override
-    public Pipeline updatePipeline(Pipeline pipeline) {
-        return null;
+    @Transactional
+    public void uploadSbom(String projectName, String pipelineName, String buildNumber, SbomDto sbomDto){
+        Pipeline pipeline = pipelineRepository.findByNameAndProjectName(pipelineName, projectName)
+                .orElseThrow(() -> new NotFoundException("Pipeline not found"));
+        Sbom sbom = sbomService.save(sbomDto);
+        Build build = new Build();
+        build.setName(buildNumber);
+        build.setPipeline(pipeline);
+        build.setSbom(sbom);
+        buildRepository.save(build);
     }
 
     @Override
-    public void deletePipeline(int id) {
+    public List<DependencyDtoOut> getLatestBuildDependencies(String projectName, String pipelineName) {
+        BuildDtoQueryOut buildDto = buildService.getLatestBuild(projectName, pipelineName);
+        return sbomService.getDependenciesOfSbom(buildDto.getSbomId());
+    }
 
+    @Override
+    public Set<ComponentDtoQueryOut> getLatestBuildComponents(String projectName, String pipelineName) {
+        BuildDtoQueryOut buildDto = buildService.getLatestBuild(projectName, pipelineName);
+
+        return componentRepository.getComponentsOfBuild(buildDto.getId()).stream().map(
+                component -> queryResultMapper.mapResult(component, ComponentDtoQueryOut.class)
+        ).collect(Collectors.toSet());
     }
 }

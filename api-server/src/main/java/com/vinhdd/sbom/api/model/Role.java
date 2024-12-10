@@ -14,7 +14,11 @@ import java.util.Set;
 @Table(name = "roles")
 public class Role implements GrantedAuthority {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    @Column(unique = true)
+    private String name;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -26,7 +30,7 @@ public class Role implements GrantedAuthority {
 
     @Override
     public String getAuthority() {
-        return this.id;
+        return this.name;
     }
 
     public List<SimpleGrantedAuthority> getSimpleGrantedAuthorities() {
@@ -34,7 +38,7 @@ public class Role implements GrantedAuthority {
         for (Permission permission : permissions) {
             authorities.add(permission.toSimpleGrantedAuthority());
         }
-        authorities.add(new SimpleGrantedAuthority(this.id));
+        authorities.add(new SimpleGrantedAuthority(this.name));
         return authorities;
     }
 }

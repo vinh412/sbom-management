@@ -5,11 +5,11 @@ import com.vinhdd.sbom.api.dto.out.ApiResponse;
 import com.vinhdd.sbom.api.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -36,10 +36,5 @@ public class AuthController {
                         .message("register success")
                         .build()
         );
-    }
-
-    @GetMapping("/test")
-    public ResponseEntity<?> test() {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "thích thì ném");
     }
 }

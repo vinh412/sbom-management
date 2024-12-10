@@ -9,13 +9,18 @@ import lombok.Data;
 public class License {
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
+    @Column(length = 36)
     private String uuid;
     private String licenseId;
     private String name;
+    @Column(columnDefinition = "TEXT")
     private String text;
+    @Column(columnDefinition = "TEXT")
     private String template;
+    @Column(columnDefinition = "TEXT")
     private String header;
+    @Column(columnDefinition = "TEXT")
     private String comment;
 
     private byte[] seeAlso;

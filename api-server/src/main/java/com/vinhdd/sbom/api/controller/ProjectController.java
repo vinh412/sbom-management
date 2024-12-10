@@ -1,13 +1,13 @@
 package com.vinhdd.sbom.api.controller;
 
+import com.vinhdd.sbom.api.dto.in.PageRequestDtoIn;
+import com.vinhdd.sbom.api.dto.in.ProjectDtoIn;
 import com.vinhdd.sbom.api.dto.out.ApiResponse;
-import com.vinhdd.sbom.api.model.Project;
 import com.vinhdd.sbom.api.service.ProjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,46 +16,45 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @GetMapping("")
-    public ResponseEntity<?> getAllProjects() {
+    public ResponseEntity<?> getAllProjects(PageRequestDtoIn pageRequestDtoIn) {
         return ResponseEntity.ok(
                 ApiResponse.builder()
                         .success(true)
                         .message("Get all projects successfully")
-                        .data(projectService.getAllProjects())
+                        .data(new PagedModel<>(projectService.getAllProjects(pageRequestDtoIn)))
                         .build()
         );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getProjectById(@PathVariable String id) {
+    public ResponseEntity<?> getProjectByName(@PathVariable String id) {
         return ResponseEntity.ok(
                 ApiResponse.builder()
                         .success(true)
                         .message("Get project successfully")
-                        .data(projectService.getProjectById(id))
+                        .data(projectService.getProjectByName(id))
                         .build()
         );
     }
 
     @PostMapping("")
-    public ResponseEntity<?> createProject(@RequestBody Project project) {
+    public ResponseEntity<?> createProject(@RequestBody ProjectDtoIn projectDtoIn) {
         return ResponseEntity.ok(
                 ApiResponse.builder()
                         .success(true)
                         .message("Create project successfully")
-                        .data(projectService.createProject(project))
+                        .data(projectService.createProject(projectDtoIn))
                         .build()
         );
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProject(@PathVariable String id, @RequestBody Project project) {
-        project.setId(id);
+    public ResponseEntity<?> updateProject(@PathVariable String id, @RequestBody ProjectDtoIn projectDtoIn) {
         return ResponseEntity.ok().body(
                 ApiResponse.builder()
                         .success(true)
                         .message("Update project successfully")
-                        .data(projectService.updateProject(project))
+                        .data(projectService.updateProject(id, projectDtoIn))
                         .build()
         );
     }
