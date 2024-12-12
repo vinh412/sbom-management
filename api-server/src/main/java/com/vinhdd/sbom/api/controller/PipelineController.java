@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vinhdd.sbom.api.dto.in.CreatePipelineDtoIn;
 import com.vinhdd.sbom.api.dto.in.PageRequestDtoIn;
 import com.vinhdd.sbom.api.dto.out.ApiResponse;
-import com.vinhdd.sbom.api.dto.sbomfile.SbomDto;
-import com.vinhdd.sbom.api.exception.BadRequestException;
 import com.vinhdd.sbom.api.service.BuildService;
 import com.vinhdd.sbom.api.service.PipelineService;
 import com.vinhdd.sbom.api.service.SbomService;
@@ -15,9 +13,6 @@ import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,7 +25,8 @@ public class PipelineController {
     private final BuildService buildService;
 
     @GetMapping("")
-    public ResponseEntity<?> getAllPipelinesOfProject(@PathVariable("projectName") String projectName, PageRequestDtoIn pageRequestDtoIn) {
+    public ResponseEntity<?> getAllPipelinesOfProject(@PathVariable("projectName") String projectName,
+                                                      PageRequestDtoIn pageRequestDtoIn) {
         return ResponseEntity.ok(
                 ApiResponse.builder()
                         .success(true)
@@ -50,28 +46,6 @@ public class PipelineController {
                         .data(pipelineService.create(projectName, pipeline))
                         .build()
         );
-    }
-
-    @PostMapping("/{pipelineName}/sbom")
-    public ResponseEntity<?> uploadSbom(@PathVariable("projectName") String projectName,
-                                        @PathVariable("pipelineName") String pipelineName,
-                                        @RequestPart("buildNumber") String buildNumber,
-                                        @RequestPart("bom") MultipartFile file) {
-        try {
-            SbomDto sbom = objectMapper.readValue(file.getInputStream(), SbomDto.class);
-            log.info("SBOM: {}", sbom);
-            pipelineService.uploadSbom(projectName, pipelineName, buildNumber, sbom);
-            return ResponseEntity.ok(
-                    ApiResponse.builder()
-                            .success(true)
-                            .message("SBOM uploaded successfully")
-                            .build()
-            );
-        } catch (IOException e) {
-            log.error("Error while analyzing SBOM file", e);
-            throw new BadRequestException("Error while analyzing SBOM file");
-        }
-
     }
 
     @GetMapping("/{pipelineName}/builds")
@@ -101,27 +75,27 @@ public class PipelineController {
     }
 
     @GetMapping("/{pipelineName}/builds/latest/dependencies")
-    public ResponseEntity<?> getLatestBuildDependencies(@PathVariable("projectName") String projectName,
+    public ResponseEntity<?> getDependenciesOfLatestBuild(@PathVariable("projectName") String projectName,
                                                         @PathVariable("pipelineName") String pipelineName) {
 
         return ResponseEntity.ok(
                 ApiResponse.builder()
                         .success(true)
                         .message("Dependencies retrieved successfully")
-                        .data(pipelineService.getLatestBuildDependencies(projectName, pipelineName))
+                        .data(pipelineService.getDependenciesOfLatestBuild(projectName, pipelineName))
                         .build()
         );
     }
 
     @GetMapping("/{pipelineName}/builds/latest/components")
-    public ResponseEntity<?> getLatestBuildComponents(@PathVariable("projectName") String projectName,
+    public ResponseEntity<?> getComponentsOfLatestBuild(@PathVariable("projectName") String projectName,
                                                         @PathVariable("pipelineName") String pipelineName) {
 
         return ResponseEntity.ok(
                 ApiResponse.builder()
                         .success(true)
                         .message("Components retrieved successfully")
-                        .data(pipelineService.getLatestBuildComponents(projectName, pipelineName))
+                        .data(pipelineService.getComponentsOfLatestBuild(projectName, pipelineName))
                         .build()
         );
     }

@@ -1,11 +1,13 @@
 package com.vinhdd.sbom.api.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -25,8 +27,9 @@ public class Component {
     private String description;
     private String scope;
 
-    @Column(columnDefinition = "TEXT")
-    private String hashes;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private JsonNode hashes;
 
     @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.EAGER)
     @JoinTable(
@@ -36,18 +39,30 @@ public class Component {
     )
     private Set<License> licenses;
 
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinTable(
+            name = "component_vulnerability",
+            joinColumns = @JoinColumn(name = "component_id"),
+            inverseJoinColumns = @JoinColumn(name = "vulnerability_id")
+    )
+    private Set<Vulnerability> vulnerabilities = new HashSet<>();
+
     private String purl;
 
-    @Column(columnDefinition = "TEXT")
-    private String externalReferences;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private JsonNode externalReferences;
+
     private String type;
     private String bomRef;
 
-    @Column(columnDefinition = "TEXT")
-    private String evidence;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private JsonNode evidence;
 
-    @Column(columnDefinition = "TEXT")
-    private String properties;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private JsonNode properties;
 
     @ManyToMany(mappedBy = "components")
     private Set<Sbom> sboms = new HashSet<>();

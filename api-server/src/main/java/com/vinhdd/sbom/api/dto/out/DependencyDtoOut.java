@@ -10,6 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 public class DependencyDtoOut {
     private String ref;
-    @Col(value = "dependson", jsonString = true)
+    @Col(value = "depends_on", jsonString = true)
     private List<String> dependsOn;
 }

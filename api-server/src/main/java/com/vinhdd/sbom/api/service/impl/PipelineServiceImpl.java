@@ -62,26 +62,13 @@ public class PipelineServiceImpl implements PipelineService {
     }
 
     @Override
-    @Transactional
-    public void uploadSbom(String projectName, String pipelineName, String buildNumber, SbomDto sbomDto){
-        Pipeline pipeline = pipelineRepository.findByNameAndProjectName(pipelineName, projectName)
-                .orElseThrow(() -> new NotFoundException("Pipeline not found"));
-        Sbom sbom = sbomService.save(sbomDto);
-        Build build = new Build();
-        build.setName(buildNumber);
-        build.setPipeline(pipeline);
-        build.setSbom(sbom);
-        buildRepository.save(build);
-    }
-
-    @Override
-    public List<DependencyDtoOut> getLatestBuildDependencies(String projectName, String pipelineName) {
+    public List<DependencyDtoOut> getDependenciesOfLatestBuild(String projectName, String pipelineName) {
         BuildDtoQueryOut buildDto = buildService.getLatestBuild(projectName, pipelineName);
         return sbomService.getDependenciesOfSbom(buildDto.getSbomId());
     }
 
     @Override
-    public Set<ComponentDtoQueryOut> getLatestBuildComponents(String projectName, String pipelineName) {
+    public Set<ComponentDtoQueryOut> getComponentsOfLatestBuild(String projectName, String pipelineName) {
         BuildDtoQueryOut buildDto = buildService.getLatestBuild(projectName, pipelineName);
 
         return componentRepository.getComponentsOfBuild(buildDto.getId()).stream().map(
