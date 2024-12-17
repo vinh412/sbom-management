@@ -75,7 +75,7 @@ function PipelinePage() {
     <div>
       <Row gutter={8} style={{ marginBottom: "8px" }}>
         <Col span={6}>
-          <BuildList builds={builds} />
+          <OverviewCard title="Builds" value={builds.length} />
         </Col>
         <Col span={6}>
           <OverviewCard title="Components" value={components.length} />
@@ -88,10 +88,10 @@ function PipelinePage() {
         </Col>
       </Row>
       <Row gutter={8}>
-        {/* <Col span={4}>
+        <Col span={4}>
           <BuildList builds={builds} />
-        </Col> */}
-        <Col span={24}>
+        </Col>
+        <Col span={20}>
           <PipelineTabs components={components} dependencies={dependencies} />
         </Col>
       </Row>
