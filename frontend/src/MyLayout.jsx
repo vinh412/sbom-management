@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import {
   Breadcrumb,
   Button,
-  ConfigProvider,
   Dropdown,
   Layout,
   Menu,
@@ -22,7 +21,8 @@ import {
   FaRegCircleUser,
   FaArrowRightFromBracket,
 } from "react-icons/fa6";
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import BuildList from "./pages/pipelines/BuildList";
 const { Header, Content, Footer, Sider } = Layout;
 
 const sidebarItems = [
@@ -99,6 +99,14 @@ const MyLayout = ({ setDarkMode }) => {
   } = theme.useToken();
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const isPipelinePage = /^\/projects\/[^\/]+\/[^\/]+$/.test(location.pathname);
+  const breadCrumdItems = location.pathname.split("/").reduce((acc, item, index) => {
+    if (index === 0) {
+      return acc;
+    }
+    return [...acc, { title: item }];
+  });
 
   const checkJwtValidity = () => {
     const token = localStorage.getItem("jwt");
@@ -162,7 +170,6 @@ const MyLayout = ({ setDarkMode }) => {
             mode="inline"
             defaultSelectedKeys={["1"]}
             style={{
-              height: "100%",
               borderRight: 0,
             }}
             items={sidebarItems}
@@ -175,17 +182,8 @@ const MyLayout = ({ setDarkMode }) => {
           }}
         >
           <Breadcrumb
-            items={[
-              {
-                title: "Projects",
-              },
-              {
-                title: "sbom-management",
-              },
-              {
-                title: "development",
-              },
-            ]}
+            separator=">"
+            items={breadCrumdItems}
             style={{
               margin: "16px 0 16px 16px",
             }}

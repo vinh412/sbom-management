@@ -9,7 +9,7 @@ import {
   message,
 } from "antd";
 import { login } from "../../api/login";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function Login() {
   const {
@@ -17,12 +17,14 @@ function Login() {
   } = theme.useToken();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/projects";
   const onFinish = async (values) => {
     setLoading(true);
     try {
       const data = await login(values);
       localStorage.setItem("jwt", data.token);
-      navigate("/projects");
+      navigate(from, {replace: true});
     } catch (error) {
       message.error(
         "Login failed. Please check your credentials and try again."

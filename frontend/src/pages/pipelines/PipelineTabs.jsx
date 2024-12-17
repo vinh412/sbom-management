@@ -7,7 +7,7 @@ const onChange = (key) => {
   console.log(key);
 };
 
-function PipelineTabs({ components }) {
+function PipelineTabs({ components, dependencies }) {
   const items = [
     {
       key: "1",
@@ -17,7 +17,7 @@ function PipelineTabs({ components }) {
     {
       key: "2",
       label: "Dependencies",
-      children: <Board2 />,
+      children: <Board2 dependencies={dependencies} />,
     },
     {
       key: "3",
