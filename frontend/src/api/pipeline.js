@@ -1,3 +1,4 @@
+import create from "@ant-design/icons/lib/components/IconFont";
 import axiosClient from "./axiosClient";
 
 const pipelineApi = {
@@ -12,7 +13,15 @@ const pipelineApi = {
   getLatestBuildComponents: (projectName, pipelineName) => {
     const url = `/projects/${projectName}/pipelines/${pipelineName}/builds/latest/components`;
     return axiosClient.get(url);
-  }
+  },
+  createPipeline: (projectName, data) => {
+    const url = `/projects/${projectName}/pipelines`;
+    return axiosClient.post(url, data);
+  },
+  deletePipeline: (projectName, pipelineName) => {
+    const url = `/projects/${projectName}/pipelines/${pipelineName}`;
+    return axiosClient.delete(url);
+  },
 };
 
 export default pipelineApi;

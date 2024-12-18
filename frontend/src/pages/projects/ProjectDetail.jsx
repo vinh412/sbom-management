@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom';
-import pipelineApi from '../../api/pipeline';
-import { Button, Input, Pagination, Table } from 'antd';
-import { FaPlus } from 'react-icons/fa6';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import pipelineApi from "../../api/pipeline";
+import { Button, Input, Pagination, Popconfirm, Table } from "antd";
+import { FaPlus, FaRegTrashCan } from "react-icons/fa6";
+import CreatePipeline from "../pipelines/CreatePipeline";
 
 function ProjectDetail() {
   const [loading, setLoading] = useState(false);
@@ -30,8 +31,12 @@ function ProjectDetail() {
       dataIndex: "name",
       key: "name",
       render: (item, record) => {
-        return <Button type="link" onClick={() => navigate(`${record.name}`)}>{item}</Button>;
-      }
+        return (
+          <Button type="link" onClick={() => navigate(`${record.name}`)}>
+            {item}
+          </Button>
+        );
+      },
     },
     {
       title: "Description",
@@ -41,35 +46,73 @@ function ProjectDetail() {
     {
       title: "Created At",
       dataIndex: "createdAt",
-      key: "createdAt"
-    }
+      key: "createdAt",
+    },
+    {
+      key: "action",
+      render: (_, record) => {
+        return (
+          <div
+            style={{
+              display: "flex",
+              gap: "2px",
+            }}
+          >
+            <Popconfirm
+              title="Delete the pipeline"
+              description="Are you sure to delete this pipeline?"
+              okText="Yes"
+              cancelText="No"
+              // onConfirm={() => }
+            >
+              <Button danger type="text" icon={<FaRegTrashCan />} />
+            </Popconfirm>
+          </div>
+        );
+      },
+    },
   ];
 
-  useEffect(() => {
-    const fetchPipelines = async () => {
-      setLoading(true);
-      const searchParams = new URLSearchParams({
-        search,
-        page,
-        size,
-        sortBy,
-        order,
-      });
-      try {
-        const data = await pipelineApi.getPipelinesByProjectName(projectName, searchParams);
-        setPipelines(data.content.map((item, index) => {
+  const deletePipeline = async (id) => {
+    try {
+      await pipelineApi.deletePipeline(id);
+      fetchPipelines();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const fetchPipelines = async () => {
+    setLoading(true);
+    const searchParams = new URLSearchParams({
+      search,
+      page,
+      size,
+      sortBy,
+      order,
+    });
+    try {
+      const data = await pipelineApi.getPipelinesByProjectName(
+        projectName,
+        searchParams
+      );
+      setPipelines(
+        data.content.map((item, index) => {
           return {
             ...item,
-            no: index + 1 + ((page - 1) * size),
+            no: index + 1 + (page - 1) * size,
+            key: item.id,
           };
-        }));
-        setTotalElements(data.page.totalElements);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+        })
+      );
+      setTotalElements(data.page.totalElements);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchPipelines();
   }, [search, page, size, sortBy, order]);
   return (
@@ -86,9 +129,7 @@ function ProjectDetail() {
           justifyContent: "space-between",
         }}
       >
-        <Button type="primary" icon={<FaPlus />}>
-          Create
-        </Button>
+        <CreatePipeline refresh={fetchPipelines} />
         <Input.Search
           style={{ width: "300px" }}
           placeholder="Search"
@@ -108,7 +149,7 @@ function ProjectDetail() {
         }}
       />
     </div>
-  )
+  );
 }
 
-export default ProjectDetail
+export default ProjectDetail;

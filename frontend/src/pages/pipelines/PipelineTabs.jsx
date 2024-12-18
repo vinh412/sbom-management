@@ -7,7 +7,7 @@ const onChange = (key) => {
   console.log(key);
 };
 
-function PipelineTabs({ components, dependencies }) {
+function PipelineTabs({ components, dependencies, builds }) {
   const items = [
     {
       key: "1",
@@ -22,7 +22,7 @@ function PipelineTabs({ components, dependencies }) {
     {
       key: "3",
       label: "Compare",
-      children: <CompareBuild />,
+      children: <CompareBuild builds={builds}/>,
     },
   ];
   const {

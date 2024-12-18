@@ -92,7 +92,7 @@ function PipelinePage() {
           <BuildList builds={builds} />
         </Col>
         <Col span={20}>
-          <PipelineTabs components={components} dependencies={dependencies} />
+          <PipelineTabs components={components} dependencies={dependencies} builds={builds} />
         </Col>
       </Row>
     </div>
