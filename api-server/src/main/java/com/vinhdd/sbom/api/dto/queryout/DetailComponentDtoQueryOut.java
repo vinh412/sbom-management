@@ -1,5 +1,6 @@
 package com.vinhdd.sbom.api.dto.queryout;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.vinhdd.sbom.api.util.helper.Col;
 import lombok.Data;
 
@@ -18,6 +19,12 @@ public class ComponentDtoQueryOut {
     private String purl;
     private String type;
     private String version;
-    @Col(value = "license_id", jsonString = true)
-    private List<String> licenseId;
+    @Col("latest_version")
+    private String latestVersion;
+    @Col("is_latest")
+    private Boolean isLatest;
+    @Col(value = "licenses", jsonString = true)
+    private List<JsonNode> licenses;
+    @Col(value = "vulnerabilities", jsonString = true)
+    private List<JsonNode> vulnerabilities;
 }
