@@ -26,6 +26,14 @@ public class ComponentDto {
     private JsonNode evidence;
     private JsonNode properties;
 
+    public void setPurl(String purl) {
+        if (purl != null && purl.contains("?")) {
+            this.purl = purl.substring(0, purl.indexOf("?"));
+        } else {
+            this.purl = purl;
+        }
+    }
+
     public Component toEntity(){
         Component component = new Component();
         component.setPublisher(this.publisher);
@@ -35,7 +43,7 @@ public class ComponentDto {
         component.setDescription(this.description);
         component.setScope(this.scope);
         component.setHashes(this.hashes);
-        component.setPurl(this.purl.substring(0, this.purl.indexOf("?")));
+        component.setPurl(this.purl);
         component.setExternalReferences(this.externalReferences);
         component.setType(this.type);
         component.setBomRef(this.bomRef);

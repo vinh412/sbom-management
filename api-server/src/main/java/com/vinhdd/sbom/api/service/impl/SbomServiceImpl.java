@@ -1,5 +1,7 @@
 package com.vinhdd.sbom.api.service.impl;
 
+import com.vinhdd.sbom.api.core.MavenPackageService;
+import com.vinhdd.sbom.api.core.NpmPackageService;
 import com.vinhdd.sbom.api.dto.out.DependencyDtoOut;
 import com.vinhdd.sbom.api.dto.restTemplate.ComponentReportDto;
 import com.vinhdd.sbom.api.dto.sbomfile.SbomDto;
@@ -33,17 +35,8 @@ public class SbomServiceImpl implements SbomService {
     private final LicenseRepository licenseRepository;
     private final VulnerabilityService vulnerabilityService;
     private final QueryResultMapper queryResultMapper;
-
-    private Sbom fromDto(SbomDto dto) {
-        return Sbom.builder()
-                .bomFormat(dto.getBomFormat())
-                .specVersion(dto.getSpecVersion())
-                .serialNumber(dto.getSerialNumber())
-                .version(dto.getVersion())
-                .component(componentService.fromDto(dto.getMetadata().getComponent()))
-                .components(dto.getComponents().stream().map(componentService::fromDto).collect(Collectors.toSet()))
-                .build();
-    }
+    private final NpmPackageService npmPackageService;
+    private final MavenPackageService mavenPackageService;
 
     @Override
     @Transactional
@@ -57,9 +50,9 @@ public class SbomServiceImpl implements SbomService {
         sbom.setComponent(componentService.fromDto(dto.getMetadata().getComponent()));
         sbom.setCreatedAt(dto.getMetadata().getTimestamp());
         dto.getComponents().forEach(componentDto -> {
-            Component c = componentRepository.findByPurl(componentDto.getPurl().substring(0, componentDto.getPurl().indexOf("?")));
+            Component c = componentRepository.findByPurl(componentDto.getPurl());
             if(c == null){
-                c = componentService.fromDto(componentDto);
+                c = componentDto.toEntity();
                 c.setLicenses(componentDto.getLicenses().stream().map(licenseWrapper ->
                         licenseRepository.findByLicenseId(licenseWrapper.getLicense().getId())).collect(Collectors.toSet()));
                 notFoundComponentPurls.add(c.getPurl());

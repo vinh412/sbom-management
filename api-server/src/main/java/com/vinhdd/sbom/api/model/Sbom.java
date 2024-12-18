@@ -27,7 +27,7 @@ public class Sbom {
     private String specVersion;
     private String serialNumber;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "component_id", referencedColumnName = "id")
     private Component component;
 

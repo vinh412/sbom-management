@@ -13,9 +13,12 @@ public class Build {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String name;
+    private Integer number;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private String result;
+    private Long duration;
+    private LocalDateTime startAt;
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "sbom_id", referencedColumnName = "id")
     private Sbom sbom;
 

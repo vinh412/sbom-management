@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ComponentDtoQueryOut {
+public class DetailComponentDtoQueryOut {
     private Long id;
     @Col("bom_ref")
     private String bomRef;

@@ -22,6 +22,7 @@ public class Component {
     private String groupName;
     private String name;
     private String version;
+    private String latestVersion;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -47,6 +48,7 @@ public class Component {
     )
     private Set<Vulnerability> vulnerabilities = new HashSet<>();
 
+    @Column(unique = true)
     private String purl;
 
     @JdbcTypeCode(SqlTypes.JSON)
@@ -74,5 +76,4 @@ public class Component {
             inverseJoinColumns = @JoinColumn(name = "dependency_id")
     )
     private Set<Component> dependencies = new HashSet<>();
-
 }

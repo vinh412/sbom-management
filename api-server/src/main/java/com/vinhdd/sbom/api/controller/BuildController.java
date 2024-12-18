@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.TimeZone;
 
 @Slf4j
 @RestController
@@ -23,14 +26,18 @@ public class BuildController {
     private final BuildService buildService;
 
     @PostMapping("")
-    public ResponseEntity<?> createBuild(@RequestPart("projectName") String projectName,
-                                         @RequestPart("pipelineName") String pipelineName,
-                                         @RequestPart("buildNumber") String buildNumber,
+    public ResponseEntity<?> createBuild(@RequestParam("projectName") String projectName,
+                                         @RequestParam("pipelineName") String pipelineName,
+                                         @RequestParam("buildNumber") int buildNumber,
+                                         @RequestParam("result") String result,
+                                         @RequestParam("duration") long duration,
+                                         @RequestParam("startAt") long startAt,
                                          @RequestPart("bom") MultipartFile file) {
         try {
             SbomDto sbom = objectMapper.readValue(file.getInputStream(), SbomDto.class);
             log.info("SBOM: {}", sbom);
-            buildService.createBuild(projectName, pipelineName, buildNumber, sbom);
+            LocalDateTime startAtDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(startAt), TimeZone.getDefault().toZoneId());
+            buildService.createBuild(projectName, pipelineName, buildNumber, result, duration, startAtDate, sbom);
             return ResponseEntity.ok(
                     ApiResponse.builder()
                             .success(true)
@@ -41,5 +48,17 @@ public class BuildController {
             log.error("Error while analyzing SBOM file", e);
             throw new BadRequestException("Error while analyzing SBOM file");
         }
+    }
+
+    @GetMapping("/compare")
+    public ResponseEntity<?> compareBuilds(@RequestParam("from") long buildId1,
+                                          @RequestParam("to") long buildId2) {
+        return ResponseEntity.ok(
+                ApiResponse.builder()
+                        .message("Compare builds successfully")
+                        .success(true)
+                        .data(buildService.compareBuilds(buildId1, buildId2))
+                        .build()
+        );
     }
 }

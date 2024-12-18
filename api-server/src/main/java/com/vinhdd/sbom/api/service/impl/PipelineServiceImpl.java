@@ -5,8 +5,7 @@ import com.vinhdd.sbom.api.dto.in.CreatePipelineDtoIn;
 import com.vinhdd.sbom.api.dto.in.PageRequestDtoIn;
 import com.vinhdd.sbom.api.dto.out.DependencyDtoOut;
 import com.vinhdd.sbom.api.dto.queryout.BuildDtoQueryOut;
-import com.vinhdd.sbom.api.dto.queryout.ComponentDtoQueryOut;
-import com.vinhdd.sbom.api.dto.sbomfile.SbomDto;
+import com.vinhdd.sbom.api.dto.queryout.DetailComponentDtoQueryOut;
 import com.vinhdd.sbom.api.exception.NotFoundException;
 import com.vinhdd.sbom.api.model.*;
 import com.vinhdd.sbom.api.repository.BuildRepository;
@@ -17,7 +16,6 @@ import com.vinhdd.sbom.api.service.BuildService;
 import com.vinhdd.sbom.api.service.PipelineService;
 import com.vinhdd.sbom.api.service.SbomService;
 import com.vinhdd.sbom.api.util.helper.QueryResultMapper;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,8 +24,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -68,11 +64,11 @@ public class PipelineServiceImpl implements PipelineService {
     }
 
     @Override
-    public Set<ComponentDtoQueryOut> getComponentsOfLatestBuild(String projectName, String pipelineName) {
+    public List<DetailComponentDtoQueryOut> getComponentsOfLatestBuild(String projectName, String pipelineName) {
         BuildDtoQueryOut buildDto = buildService.getLatestBuild(projectName, pipelineName);
 
-        return componentRepository.getComponentsOfBuild(buildDto.getId()).stream().map(
-                component -> queryResultMapper.mapResult(component, ComponentDtoQueryOut.class)
-        ).collect(Collectors.toSet());
+        return componentRepository.getDetailComponentsOfBuild(buildDto.getId()).stream().map(
+                component -> queryResultMapper.mapResult(component, DetailComponentDtoQueryOut.class)
+        ).toList();
     }
 }
