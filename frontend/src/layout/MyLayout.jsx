@@ -15,15 +15,16 @@ import {
   ProjectOutlined,
   SunOutlined,
 } from "@ant-design/icons";
+import { FaShieldHalved, FaScaleBalanced } from "react-icons/fa6";
 import {
-  FaShieldHalved,
-  FaScaleBalanced,
-  FaRegCircleUser,
-  FaArrowRightFromBracket,
-} from "react-icons/fa6";
-import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import BuildList from "./pages/pipelines/BuildList";
-const { Header, Content, Footer, Sider } = Layout;
+  Link,
+  NavLink,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import MyHeader from "./header/MyHeader";
+const { Content, Footer, Sider } = Layout;
 
 const sidebarItems = [
   {
@@ -64,7 +65,7 @@ const sidebarItems = [
       },
       {
         key: "7",
-        label: <Link to="/admin/users">Role</Link>,
+        label: <Link to="/roles">Role</Link>,
       },
       {
         key: "8",
@@ -74,25 +75,6 @@ const sidebarItems = [
   },
 ];
 
-const handleMenuClick = (e) => {
-  if (e.key === "logout") {
-    localStorage.removeItem("jwt");
-    window.location.href = "/login";
-  }
-};
-
-const dropdownItem = [
-  {
-    label: "Logout",
-    icon: <FaArrowRightFromBracket />,
-    key: "logout",
-  },
-];
-const dropdownMenu = {
-  items: dropdownItem,
-  onClick: handleMenuClick,
-};
-
 const MyLayout = ({ setDarkMode }) => {
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -100,13 +82,14 @@ const MyLayout = ({ setDarkMode }) => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const isPipelinePage = /^\/projects\/[^\/]+\/[^\/]+$/.test(location.pathname);
-  const breadCrumdItems = location.pathname.split("/").reduce((acc, item, index) => {
-    if (index === 0) {
-      return acc;
-    }
-    return [...acc, { title: item }];
-  });
+  const breadCrumdItems = location.pathname
+    .split("/")
+    .reduce((acc, item, index) => {
+      if (index === 0) {
+        return acc;
+      }
+      return [...acc, { title: item }];
+    });
 
   const checkJwtValidity = () => {
     const token = localStorage.getItem("jwt");
@@ -123,39 +106,8 @@ const MyLayout = ({ setDarkMode }) => {
   }, [navigate]);
 
   return (
-    <Layout>
-      <Header
-        style={{
-          background: colorBgContainer,
-          position: "sticky",
-          top: 0,
-          zIndex: 1,
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <Typography.Title level={2} style={{ margin: 0 }}>
-          SBOM Management
-        </Typography.Title>
-        <div
-          style={{
-            display: "flex",
-            gap: "8px",
-            alignItems: "center",
-          }}
-        >
-          <Switch
-            checkedChildren={<MoonOutlined />}
-            unCheckedChildren={<SunOutlined />}
-            onChange={(checked) => setDarkMode(checked)}
-          />
-          <Dropdown trigger={["click"]} menu={dropdownMenu}>
-            <Button type="text" icon={<FaRegCircleUser size={24} />} />
-          </Dropdown>
-        </div>
-      </Header>
+    <Layout style={{minHeight: "100vh"}}>
+      <MyHeader setDarkMode={setDarkMode} />
       <Layout>
         <Sider
           width={200}
@@ -178,7 +130,7 @@ const MyLayout = ({ setDarkMode }) => {
         <Layout
           style={{
             marginLeft: "200px",
-            minHeight: "100vh",
+            minHeight: "100%"
           }}
         >
           <Breadcrumb
@@ -197,7 +149,7 @@ const MyLayout = ({ setDarkMode }) => {
           </Content>
           <Footer
             style={{
-              textAlign: "center",
+              textAlign: "center"
             }}
           >
             ©{new Date().getFullYear()} Made by vinhdd

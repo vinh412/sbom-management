@@ -7,13 +7,7 @@ import CreatePipeline from "../pipelines/CreatePipeline";
 
 function ProjectDetail() {
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [size, setSize] = useState(10);
-  const [sortBy, setSortBy] = useState("createdAt");
-  const [order, setOrder] = useState("desc");
   const [pipelines, setPipelines] = useState([]);
-  const [totalElements, setTotalElements] = useState(0);
 
   const params = useParams();
   const projectName = params.projectName;
@@ -33,6 +27,21 @@ function ProjectDetail() {
       render: (item, record) => {
         return (
           <Button type="link" onClick={() => navigate(`${record.name}`)}>
+            {item}
+          </Button>
+        );
+      },
+    },
+    {
+      title: "Branch",
+      dataIndex: "branch",
+      key: "branch",
+      render: (item, record) => {
+        return (
+          <Button
+            type="link"
+            onClick={() => window.open(record.branchUrl, "_blank")}
+          >
             {item}
           </Button>
         );
@@ -80,32 +89,21 @@ function ProjectDetail() {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   const fetchPipelines = async () => {
     setLoading(true);
-    const searchParams = new URLSearchParams({
-      search,
-      page,
-      size,
-      sortBy,
-      order,
-    });
     try {
-      const data = await pipelineApi.getPipelinesByProjectName(
-        projectName,
-        searchParams
-      );
+      const data = await pipelineApi.getPipelinesByProjectName(projectName);
       setPipelines(
-        data.content.map((item, index) => {
+        data.map((item, index) => {
           return {
             ...item,
-            no: index + 1 + (page - 1) * size,
+            no: index + 1,
             key: item.id,
           };
         })
       );
-      setTotalElements(data.page.totalElements);
     } catch (error) {
       console.error(error);
     } finally {
@@ -114,7 +112,7 @@ function ProjectDetail() {
   };
   useEffect(() => {
     fetchPipelines();
-  }, [search, page, size, sortBy, order]);
+  }, []);
   return (
     <div
       style={{
@@ -133,21 +131,10 @@ function ProjectDetail() {
         <Input.Search
           style={{ width: "300px" }}
           placeholder="Search"
-          onSearch={(value) => setSearch(value)}
+          // onSearch={(value) => setSearch(value)}
         />
       </div>
-      <Table columns={columns} dataSource={pipelines} pagination={false} />
-      <Pagination
-        current={page}
-        total={totalElements}
-        pageSize={size}
-        showSizeChanger={true}
-        align="center"
-        onChange={(page, size) => {
-          setPage(page);
-          setSize(size);
-        }}
-      />
+      <Table columns={columns} dataSource={pipelines} pagination={true} />
     </div>
   );
 }

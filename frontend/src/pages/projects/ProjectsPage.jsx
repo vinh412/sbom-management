@@ -8,13 +8,8 @@ import EditProject from "./EditProject";
 
 function ProjectsPage() {
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [size, setSize] = useState(10);
-  const [sortBy, setSortBy] = useState("createdAt");
-  const [order, setOrder] = useState("asc");
   const [projects, setProjects] = useState([]);
-  const [totalElements, setTotalElements] = useState(0);
+  const [filterProjects, setFilterProjects] = useState([]);
 
   const navigate = useNavigate();
 
@@ -50,6 +45,18 @@ function ProjectsPage() {
       title: "Description",
       dataIndex: "description",
       key: "description",
+    },
+    {
+      title: "Repository",
+      dataIndex: "repository",
+      key: "repository",
+      render: (item) => {
+        return (
+          <Button type="link" onClick={() => window.open(item, '_blank')}>
+            {item}
+          </Button>
+        );
+      }
     },
     {
       title: "Created At",
@@ -88,25 +95,27 @@ function ProjectsPage() {
 
   const fetchProjects = async () => {
     setLoading(true);
-    const searchParams = new URLSearchParams({
-      search,
-      page,
-      size,
-      sortBy,
-      order,
-    });
     try {
-      const data = await projectApi.getProjects(searchParams);
+      const data = await projectApi.getProjects();
       setProjects(
-        data.content.map((item, index) => {
+        data.map((item, index) => {
           return {
             ...item,
-            no: index + 1 + (page - 1) * size,
+            no: index + 1,
             key: item.id,
           };
         })
       );
-      setTotalElements(data.page.totalElements);
+      setFilterProjects(
+        data.map((item, index) => {
+          return {
+            ...item,
+            no: index + 1,
+            key: item.id,
+          };
+        })
+      );
+    
     } catch (error) {
       console.error(error);
     } finally {
@@ -116,7 +125,7 @@ function ProjectsPage() {
 
   useEffect(() => {
     fetchProjects();
-  }, [search, page, size, sortBy, order]);
+  }, []);
   return (
     <div
       style={{
@@ -135,25 +144,14 @@ function ProjectsPage() {
         <Input.Search
           style={{ width: "300px" }}
           placeholder="Search"
-          onSearch={(value) => setSearch(value)}
+          onSearch={(value) => setFilterProjects(projects.filter((project) => project.name.includes(value)))}
         />
       </div>
       <Table
         columns={columns}
-        dataSource={projects}
-        pagination={false}
+        dataSource={filterProjects}
+        pagination={true}
         loading={loading}
-      />
-      <Pagination
-        current={page}
-        total={totalElements}
-        pageSize={size}
-        showSizeChanger={true}
-        align="center"
-        onChange={(page, size) => {
-          setPage(page);
-          setSize(size);
-        }}
       />
     </div>
   );

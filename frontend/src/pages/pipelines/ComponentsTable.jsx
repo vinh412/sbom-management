@@ -100,7 +100,7 @@ function ComponentsTable({ dataSource }) {
               : blue;
           return (
             <span style={{ display: "inline-flex", alignItems: "center"}}>
-              <Link style={{marginRight: "2px"}} to={`/vulnerabilities/${item}`}>{item.vulId}</Link>
+              <Link style={{marginRight: "2px"}} to={`/vulnerabilities/${item.vulId}`}>{item.vulId}</Link>
               <Tooltip title={`CVSS Score: ${item.cvssScore}`}>
                 <FaBug color={bugColor} />
               </Tooltip>

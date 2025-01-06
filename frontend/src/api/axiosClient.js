@@ -1,11 +1,10 @@
 import axios from "axios";
-
 const publicUrl = [
   "/auth/login",
 ]
 
 const axiosClient = axios.create({
-  baseURL: "http://localhost:8888/api/v1",
+  baseURL: `${import.meta.env.VITE_API_URL}/api/v1`,
   headers: {
     "Content-Type": "application/json",
   },
@@ -35,8 +34,7 @@ axiosClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response && error.response.status === 401) {
-      // Token hết hạn, chuyển hướng đến trang đăng nhập
+    if (error.response && error.response.status === 401 && !publicUrl.includes(error.config.url)) {
       window.location.href = "/login";
     }
     return Promise.reject(error);

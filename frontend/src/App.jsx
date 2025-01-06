@@ -1,5 +1,5 @@
 import { ConfigProvider, theme } from "antd";
-import MyLayout from "./MyLayout";
+import MyLayout from "./layout/MyLayout";
 import { useState } from "react";
 import { BrowserRouter as Router, Route, Routes, createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "./pages/login/Login";
@@ -14,6 +14,9 @@ import ErrorPage from "./pages/errors/ErrorPage";
 import UserManagementPage from "./pages/user-management/UserManagementPage";
 import PermissionsPage from "./pages/permission/PermissionsPage";
 import PipelinePage from "./pages/pipelines/PipelinePage";
+import VulnerabilityPage, {loader as vulnerabilityLoader} from "./pages/vulnerabilities/VulnerabilityPage";
+import RolesPage from "./pages/roles/RolesPage";
+import ProjectTab from "./pages/projects/ProjectTab";
 
 
 function App() {
@@ -30,7 +33,7 @@ function App() {
         },
         {
           path: "projects/:projectName",
-          element: <ProjectDetail />,
+          element: <ProjectTab />,
         },
         {
           path: "projects/:projectName/:pipelineName",
@@ -43,6 +46,11 @@ function App() {
         {
           path: "vulnerabilities",
           element: <VulnerabilitiesPage />
+        },
+        {
+          path: "vulnerabilities/:id",
+          element: <VulnerabilityPage />,
+          loader: vulnerabilityLoader
         },
         {
           path: "licenses",
@@ -61,6 +69,10 @@ function App() {
           path: "/admin/users/:username",
           element: <UserDetail />,
           loader: userDetailLoader
+        },
+        {
+          path: "/roles",
+          element: <RolesPage />
         },
         {
           path: "/permissions",
@@ -87,26 +99,6 @@ function App() {
         },
       }}
     >
-      {/* <Router>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <MyLayout isDarkMode={isDarkMode} setDarkMode={setDarkMode} />
-            }
-          >
-            <Route path="projects" element={<ProjectsPage />} />
-            <Route path="projects/:projectId" element={<ProjectDetail />} />
-
-            <Route path="components" element={<ComponentsPage />} />
-            <Route path="vulnerabilities" element={<VulnerabilitiesPage />} />
-            <Route path="licenses" element={<LicensesPage />} />
-            <Route path="licenses/:id" element={<LicenseDetail />} loader={licenseLoader}/>
-          </Route>
-
-          <Route path="/login" element={<Login />} />
-        </Routes>
-      </Router> */}
       <RouterProvider router={route}/>
     </ConfigProvider>
   );

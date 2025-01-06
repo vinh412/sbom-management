@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from 'react'
-import permissionApi from '../../api/permission';
-import { Input, Pagination, Table } from 'antd';
+import React, { useEffect, useState } from "react";
+import permissionApi from "../../api/permission";
+import { Input, Table } from "antd";
 
 function PermissionsPage() {
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [size, setSize] = useState(10);
-  const [sortBy, setSortBy] = useState("id");
-  const [order, setOrder] = useState("desc");
   const [permissions, setPermissions] = useState([]);
-  const [totalElements, setTotalElements] = useState(0);
+  const [filteredPermissions, setFilteredPermissions] = useState([]);
 
   const columns = [
     {
+      title: "No",
+      dataIndex: "no",
+      key: "no",
+    },
+    {
       title: "Permission",
-      dataIndex: "permission",
-      key: "permission",
+      dataIndex: "name",
+      key: "name",
     },
     {
       title: "Description",
@@ -26,19 +26,12 @@ function PermissionsPage() {
 
   useEffect(() => {
     const fetchPermissions = async () => {
-      const searchParams = new URLSearchParams({
-        search,
-        page,
-        size,
-        sortBy,
-        order,
-      });
-      const data = await permissionApi.getPermissions(searchParams);
-      setPermissions(data.content);
-      setTotalElements(data.page.totalElements);
+      const data = await permissionApi.getPermissions();
+      setPermissions(data);
+      setFilteredPermissions(data.map((permission, index) => ({ ...permission, no: index + 1, key: index })));
     };
     fetchPermissions();
-  }, [search, page, size, sortBy, order]);
+  }, []);
   return (
     <div
       style={{
@@ -56,23 +49,18 @@ function PermissionsPage() {
         <Input.Search
           style={{ width: "300px" }}
           placeholder="Search"
-          onSearch={(value) => setSearch(value)}
+          onChange={(value) => {
+            setFilteredPermissions(
+              permissions.filter((permission) =>
+                permission.permission.includes(value.target.value)
+              )
+            );
+          }}
         />
       </div>
-      <Table columns={columns} dataSource={permissions} pagination={false} />
-      <Pagination
-        current={page}
-        total={totalElements}
-        pageSize={size}
-        showSizeChanger={true}
-        align="center"
-        onChange={(page, size) => {
-          setPage(page);
-          setSize(size);
-        }}
-      />
+      <Table columns={columns} dataSource={filteredPermissions} pagination />
     </div>
-  )
+  );
 }
 
-export default PermissionsPage
+export default PermissionsPage;

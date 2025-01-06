@@ -1,9 +1,9 @@
 import axiosClient from "./axiosClient";
 
 const permissionApi = {
-  getPermissions: (params) => {
+  getPermissions: () => {
     const url = "/permissions";
-    return axiosClient.get(url, { params });
+    return axiosClient.get(url);
   }
 };
 

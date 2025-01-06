@@ -3,6 +3,7 @@ import { Tabs, theme } from "antd";
 import Board2 from "../dependencies/Board2";
 import CompareBuild from "./CompareBuild";
 import ComponentsTable from "./ComponentsTable";
+import { ReactFlowProvider } from "@xyflow/react";
 const onChange = (key) => {
   console.log(key);
 };
@@ -17,25 +18,31 @@ function PipelineTabs({ components, dependencies, builds }) {
     {
       key: "2",
       label: "Dependencies",
-      children: <Board2 dependencies={dependencies} />,
+      children: (
+        <ReactFlowProvider>
+          <Board2 dependencies={dependencies} />,
+        </ReactFlowProvider>
+      ),
     },
     {
       key: "3",
       label: "Compare",
-      children: <CompareBuild builds={builds}/>,
+      children: <CompareBuild builds={builds} />,
     },
   ];
   const {
     token: { borderRadius, padding, paddingSM, colorBgContainer },
   } = theme.useToken();
   return (
-    <div style={{
-      background: colorBgContainer,
-      padding: padding,
-      borderRadius: borderRadius,
-    }}>
+    <div
+      style={{
+        background: colorBgContainer,
+        padding: padding,
+        borderRadius: borderRadius,
+      }}
+    >
       <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
     </div>
-  ) 
+  );
 }
 export default PipelineTabs;

@@ -5,7 +5,6 @@ import OverviewCard from "./OverviewCard";
 import PipelineTabs from "./PipelineTabs";
 import buildApi from "../../api/build";
 import { useParams } from "react-router-dom";
-import pipelineApi from "../../api/pipeline";
 
 function PipelinePage() {
   const [size, setSize] = useState(10);
@@ -14,6 +13,7 @@ function PipelinePage() {
   const [licenses, setLicenses] = useState([]);
   const [vulnerabilities, setVulnerabilities] = useState([]);
   const [builds, setBuilds] = useState([]);
+  const [selectedBuild, setSelectedBuild] = useState(null);
   const params = useParams();
   const projectName = params.projectName;
   const pipelineName = params.pipelineName;
@@ -31,6 +31,7 @@ function PipelinePage() {
         pipelineName,
         searchParams
       );
+      setSelectedBuild(data.content[0].id);
       setBuilds(data.content);
     };
     fetchBuilds();
@@ -38,10 +39,7 @@ function PipelinePage() {
 
   useEffect(() => {
     const fetchComponents = async () => {
-      const data = await pipelineApi.getLatestBuildComponents(
-        projectName,
-        pipelineName
-      );
+      const data = await buildApi.getComponentsByBuildId(selectedBuild);
       const vulns = new Set();
       const licenses = new Set();
       data.forEach((item) => {
@@ -61,15 +59,14 @@ function PipelinePage() {
       );
     };
     const fetchDependencies = async () => {
-      const data = await pipelineApi.getLatestBuildDependencies(
-        projectName,
-        pipelineName
-      );
+      const data = await buildApi.getDependenciesByBuildId(selectedBuild);
       setDependencies(data);
     };
-    fetchComponents();
-    fetchDependencies();
-  }, []);
+    if(selectedBuild !== null){
+      fetchComponents();
+      fetchDependencies();
+    }
+  }, [selectedBuild]);
 
   return (
     <div>
@@ -89,7 +86,7 @@ function PipelinePage() {
       </Row>
       <Row gutter={8}>
         <Col span={4}>
-          <BuildList builds={builds} />
+          <BuildList builds={builds} setSelectedBuild={setSelectedBuild} selectedBuild={selectedBuild}/>
         </Col>
         <Col span={20}>
           <PipelineTabs components={components} dependencies={dependencies} builds={builds} />

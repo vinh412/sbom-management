@@ -5,11 +5,11 @@ import { FaRegCircleCheck, FaRegCircleXmark } from "react-icons/fa6";
 
 const convertDuration = (duration) => {
   return (duration / 1000).toFixed(1);
-}
+};
 
-function BuildList({ builds }) {
+function BuildList({ builds, setSelectedBuild, selectedBuild }) {
   const {
-    token: { borderRadius, padding, paddingSM, colorBgContainer },
+    token: { borderRadius, padding, paddingSM, colorBgContainer, colorBgTextHover },
   } = theme.useToken();
   return (
     <div
@@ -26,20 +26,39 @@ function BuildList({ builds }) {
       <Typography.Title level={4} style={{ margin: 0 }}>
         Builds
       </Typography.Title>
-      {builds.map((build, index) => (
-        <BuildItem key={build.number} build={build} index={index} />
-      ))}
+      {builds.map((build, index) => {
+        console.log(build.id);
+        console.log(selectedBuild);
+        return (
+          <div
+            style={{
+              width: "100%",
+              backgroundColor:
+                build.id === selectedBuild ? colorBgTextHover : "transparent",
+            }}
+          >
+            <BuildItem
+              key={build.number}
+              build={build}
+              index={index}
+              setSelectedBuild={setSelectedBuild}
+            />
+          </div>
+        );
+      })}
       <Link>More</Link>
     </div>
   );
 }
 
-function BuildItem({ build: { number, result, duration, startAt }, index }) {
+function BuildItem({
+  build: { number, result, duration, startAt, id },
+  index,
+  setSelectedBuild,
+}) {
   const {
     token: { borderRadiusSM, paddingXS, colorBorder },
   } = theme.useToken();
-  console.log(index);
-  const bgColor = index % 2 === 0 ? colorBorder : "transparent";
   return (
     <div
       style={{
@@ -49,7 +68,7 @@ function BuildItem({ build: { number, result, duration, startAt }, index }) {
         padding: paddingXS,
       }}
     >
-      <div style={{marginTop: "2px"}}>
+      <div style={{ marginTop: "2px" }}>
         {result === "SUCCESS" ? (
           <FaRegCircleCheck color="green" />
         ) : (
@@ -62,10 +81,13 @@ function BuildItem({ build: { number, result, duration, startAt }, index }) {
           flexDirection: "column",
         }}
       >
-        <div style={{display: 'flex', justifyContent: 'space-between'}}>
-        <Link type="link">#{number}</Link>
-        <Typography.Text type="secondary">{convertDuration(duration)} s</Typography.Text>
-
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <Link type="link" onClick={() => setSelectedBuild(id)}>
+            #{number}
+          </Link>
+          <Typography.Text type="secondary">
+            {convertDuration(duration)} s
+          </Typography.Text>
         </div>
         <Typography.Text>{startAt}</Typography.Text>
       </div>

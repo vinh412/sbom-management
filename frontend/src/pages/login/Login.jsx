@@ -7,8 +7,9 @@ import {
   theme,
   Typography,
   message,
+  Modal,
 } from "antd";
-import { login } from "../../api/login";
+import authApi from "../../api/auth";
 import { useLocation, useNavigate } from "react-router-dom";
 
 function Login() {
@@ -16,19 +17,25 @@ function Login() {
     token: { colorBgContainer, colorBgLayout, borderRadiusLG, paddingLG },
   } = theme.useToken();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/projects";
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      const data = await login(values);
+      const data = await authApi.login(values);
       localStorage.setItem("jwt", data.token);
       navigate(from, {replace: true});
     } catch (error) {
-      message.error(
-        "Login failed. Please check your credentials and try again."
-      );
+      if(error.response.data.message === "User is disabled") {
+        Modal.error({
+          title: "Your account is disabled!",
+          content: "Please contact the administrator to enable your account.",
+        })
+      } else {
+        message.error("Login failed. Please check your credentials and try again.");
+      }
       console.log(error);
     } finally {
       setLoading(false);

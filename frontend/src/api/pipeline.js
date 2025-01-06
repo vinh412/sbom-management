@@ -2,9 +2,9 @@ import create from "@ant-design/icons/lib/components/IconFont";
 import axiosClient from "./axiosClient";
 
 const pipelineApi = {
-  getPipelinesByProjectName: (projectName, params) => {
+  getPipelinesByProjectName: (projectName) => {
     const url = `/projects/${projectName}/pipelines`;
-    return axiosClient.get(url, { params });
+    return axiosClient.get(url);
   },
   getLatestBuildDependencies: (projectName, pipelineName) => {
     const url = `/projects/${projectName}/pipelines/${pipelineName}/builds/latest/dependencies`;
