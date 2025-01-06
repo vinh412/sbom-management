@@ -1,12 +1,16 @@
 package com.vinhdd.sbom.api.controller;
 
+import com.vinhdd.sbom.api.config.JwtService;
 import com.vinhdd.sbom.api.dto.in.AuthRequest;
+import com.vinhdd.sbom.api.dto.in.ChangePasswordDtoIn;
 import com.vinhdd.sbom.api.dto.out.ApiResponse;
 import com.vinhdd.sbom.api.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final JwtService jwtService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody AuthRequest authRequest) {

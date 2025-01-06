@@ -8,5 +8,5 @@ import java.util.Set;
 public class RoleDtoIn {
     private Long id;
     private String name;
-    private Set<String> permissions;
+    private Set<String> permissionIds;
 }

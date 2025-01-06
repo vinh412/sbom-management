@@ -8,6 +8,6 @@ import java.util.Set;
 public interface RoleService {
     Set<RoleDto> getAll();
     RoleDto create(RoleDtoIn roleDtoIn);
-    RoleDto update(RoleDtoIn roleDtoIn);
+    RoleDto update(Long roleId, RoleDtoIn roleDtoIn);
     void delete(Long id);
 }

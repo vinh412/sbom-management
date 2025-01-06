@@ -1,5 +1,6 @@
 package com.vinhdd.sbom.api.dto;
 
+import com.vinhdd.sbom.api.dto.out.MembershipDto;
 import com.vinhdd.sbom.api.model.Project;
 import lombok.Builder;
 import lombok.Data;

@@ -38,11 +38,12 @@ public class RoleServiceImpl implements RoleService {
             role.setId(roleDtoIn.getId());
             role.setName(roleDtoIn.getName());
             Set<Permission> permissions = new HashSet<>();
-            for (String permission : roleDtoIn.getPermissions()) {
+            for (String permission : roleDtoIn.getPermissionIds()) {
                 Permission p = permissionRepository.findById(permission)
                         .orElseThrow(() -> new BadRequestException("Permission not found: " + permission));
                 permissions.add(p);
             }
+            role.setIsDefault(false);
             role.setPermissions(permissions);
             return RoleDto.from(roleRepository.save(role));
         } catch (DataIntegrityViolationException e) {
@@ -52,14 +53,17 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @Transactional
-    public RoleDto update(RoleDtoIn roleDtoIn) {
-        Role role = roleRepository.findById(roleDtoIn.getId())
+    public RoleDto update(Long roleId, RoleDtoIn roleDtoIn) {
+        Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new RuntimeException("Role not found" + roleDtoIn.getId()));
+        if(role.getIsDefault()) {
+            throw new BadRequestException("Cannot update default role");
+        }
         role.setName(roleDtoIn.getName());
         role.getPermissions().clear();
-        for (String permission : roleDtoIn.getPermissions()) {
-            Permission p = permissionRepository.findById(permission)
-                    .orElseThrow(() -> new BadRequestException("Permission not found: " + permission));
+        for (String permissionId : roleDtoIn.getPermissionIds()) {
+            Permission p = permissionRepository.findById(permissionId)
+                    .orElseThrow(() -> new BadRequestException("Permission not found: " + permissionId));
             role.getPermissions().add(p);
         }
         return RoleDto.from(roleRepository.save(role));
@@ -67,6 +71,11 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void delete(Long id) {
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Role not found" + id));
+        if(role.getIsDefault()) {
+            throw new BadRequestException("Cannot delete default role");
+        }
         roleRepository.deleteById(id);
     }
 }

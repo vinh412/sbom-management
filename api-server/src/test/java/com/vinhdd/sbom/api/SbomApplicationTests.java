@@ -1,6 +1,10 @@
 package com.vinhdd.sbom.api;
 
+import com.vinhdd.sbom.api.core.NpmPackageService;
+import com.vinhdd.sbom.api.dto.out.CompareBuildDto;
 import com.vinhdd.sbom.api.dto.restTemplate.ComponentReportDto;
+import com.vinhdd.sbom.api.dto.restTemplate.PackageInfoDto;
+import com.vinhdd.sbom.api.service.BuildService;
 import com.vinhdd.sbom.api.service.VulnerabilityService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -14,6 +18,8 @@ import java.util.List;
 class SbomApplicationTests {
     @Autowired
     private VulnerabilityService vulnerabilityService;
+    @Autowired
+    private BuildService buildService;
 
     @Test
     void contextLoads() {
@@ -30,10 +36,8 @@ class SbomApplicationTests {
 
     @Test
     void test2() {
-//        List<Vulnerability> vulnerabilities = vulnerabilityService.getAllVulnerabilities();
-//        log.info("Vulnerabilities: {}", vulnerabilities);
-        String u = "pkg:maven/org.springframework/spring-context@6.1.11?type=jar";
-        log.info("{}", u.substring(0, u.indexOf("?")));
+        CompareBuildDto compare = buildService.compareBuilds(653L, 654L);
+        log.info("Compare: {}", compare);
     }
 
 }

@@ -17,6 +17,7 @@ public class Pipeline {
     private String id;
     private String name;
     private String description;
+    private String branch;
 
     @Column(name = "project_id", insertable = false, updatable = false)
     private String projectId;

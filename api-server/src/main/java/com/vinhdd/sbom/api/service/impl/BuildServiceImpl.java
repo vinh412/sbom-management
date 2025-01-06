@@ -3,10 +3,12 @@ package com.vinhdd.sbom.api.service.impl;
 import com.vinhdd.sbom.api.dto.BuildDto;
 import com.vinhdd.sbom.api.dto.in.PageRequestDtoIn;
 import com.vinhdd.sbom.api.dto.out.CompareBuildDto;
+import com.vinhdd.sbom.api.dto.out.DependencyDtoOut;
 import com.vinhdd.sbom.api.dto.queryout.BuildDtoQueryOut;
 import com.vinhdd.sbom.api.dto.queryout.ComponentDtoQueryOut;
-import com.vinhdd.sbom.api.dto.sbomfile.ComponentDto;
+import com.vinhdd.sbom.api.dto.queryout.DetailComponentDtoQueryOut;
 import com.vinhdd.sbom.api.dto.sbomfile.SbomDto;
+import com.vinhdd.sbom.api.dto.websocket.NotificationDto;
 import com.vinhdd.sbom.api.exception.NotFoundException;
 import com.vinhdd.sbom.api.model.Build;
 import com.vinhdd.sbom.api.model.Pipeline;
@@ -16,6 +18,7 @@ import com.vinhdd.sbom.api.repository.ComponentRepository;
 import com.vinhdd.sbom.api.repository.PipelineRepository;
 import com.vinhdd.sbom.api.repository.SbomRepository;
 import com.vinhdd.sbom.api.service.BuildService;
+import com.vinhdd.sbom.api.service.NotificationService;
 import com.vinhdd.sbom.api.service.SbomService;
 import com.vinhdd.sbom.api.util.helper.QueryResultMapper;
 import jakarta.transaction.Transactional;
@@ -27,9 +30,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,12 +42,15 @@ public class BuildServiceImpl implements BuildService {
     private final PipelineRepository pipelineRepository;
     private final QueryResultMapper queryResultMapper;
     private final ComponentRepository componentRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
-    public void createBuild(String projectName, String pipelineName, int buildNumber, String result, long duration, LocalDateTime startAt, SbomDto sbomDto) {
+    public void createBuild(String projectName, String pipelineName, String repository, String branch, int buildNumber, String result, long duration, LocalDateTime startAt, SbomDto sbomDto) {
         Pipeline pipeline = pipelineRepository.findByNameAndProjectName(pipelineName, projectName)
                 .orElseThrow(() -> new NotFoundException("Pipeline not found"));
+        pipeline.setBranch(branch);
+        pipeline.getProject().setRepository(repository);
         Sbom sbom;
         if (!result.equals("SUCCESS")) {
             sbom = getSbomByLatestBuild(projectName, pipelineName);
@@ -61,6 +65,14 @@ public class BuildServiceImpl implements BuildService {
         build.setPipeline(pipeline);
         build.setSbom(sbom);
         buildRepository.save(build);
+        notificationService.sendNotification("/project/" + projectName,
+                NotificationDto.builder()
+                        .type("info")
+                        .message(projectName)
+                        .description("Build " + buildNumber + " of pipeline " + pipelineName + " is " + result)
+                        .timestamp(System.currentTimeMillis())
+                        .build()
+        );
     }
 
     @Override
@@ -97,10 +109,11 @@ public class BuildServiceImpl implements BuildService {
                     components2.remove(component2);
                     break;
                 } else if (component1.equalsExcludeVersion(component2)) {
-                    component1.setVersion(component1.getVersion() + " -> " + component2.getVersion());
                     if (component1.getVersion().compareTo(component2.getVersion()) > 0) {
+                        component1.setVersion(component2.getVersion() + " -> " + component1.getVersion());
                         result.getUpgradedComponents().add(component1);
                     } else {
+                        component1.setVersion(component2.getVersion() + " -> " + component1.getVersion());
                         result.getDowngradedComponents().add(component1);
                     }
                     components1.remove(component1);
@@ -123,5 +136,19 @@ public class BuildServiceImpl implements BuildService {
 
     private Sbom getSbomByLatestBuild(String projectName, String pipelineName) {
         return sbomRepository.findById(getLatestBuild(projectName, pipelineName).getSbomId()).orElse(null);
+    }
+
+    @Override
+    public List<DetailComponentDtoQueryOut> getDetailComponentsByBuildId(Long buildId) {
+        return componentRepository.getDetailComponentsOfBuild(buildId).stream().map(
+                component -> queryResultMapper.mapResult(component, DetailComponentDtoQueryOut.class)
+        ).toList();
+    }
+
+    @Transactional
+    @Override
+    public List<DependencyDtoOut> getDependenciesByBuildId(Long buildId) {
+        Build build = buildRepository.findById(buildId).orElseThrow(() -> new NotFoundException("Build not found"));
+        return sbomService.getDependenciesOfSbom(build.getSbom().getId());
     }
 }

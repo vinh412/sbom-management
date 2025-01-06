@@ -35,13 +35,13 @@ public class RoleController {
         );
     }
 
-    @PutMapping("")
-    public ResponseEntity<?> updateRole(@RequestBody RoleDtoIn roleDtoIn) {
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateRole(@PathVariable Long id, @RequestBody RoleDtoIn roleDtoIn) {
         return ResponseEntity.ok(
                 ApiResponse.builder()
                         .success(true)
                         .message("Update role successfully")
-                        .data(roleService.update(roleDtoIn))
+                        .data(roleService.update(id, roleDtoIn))
                         .build()
         );
     }

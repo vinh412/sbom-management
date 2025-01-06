@@ -5,11 +5,8 @@ import lombok.Data;
 import java.util.Set;
 
 @Data
-public class UserDtoIn {
+public class CreateUserDtoIn {
     private String username;
-    private String fullname;
-    private String email;
-    private String phoneNumber;
-    private String description;
+    private String password;
     private Set<String> roles;
 }

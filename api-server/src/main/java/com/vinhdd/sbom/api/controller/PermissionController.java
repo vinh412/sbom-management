@@ -18,13 +18,13 @@ public class PermissionController {
     private final PermissionService permissionService;
 
     @GetMapping("")
-    @PreAuthorize("hasAuthority('VIEW_PERMISSIONS')")
-    public ResponseEntity<?> getAllPermissions(PageRequestDtoIn pageRequestDtoIn) {
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'VIEW_PERMISSIONS')")
+    public ResponseEntity<?> getAllPermissions() {
         return ResponseEntity.ok(
                 ApiResponse.builder()
                         .success(true)
                         .message("Get all permissions successfully")
-                        .data(new PagedModel<>(permissionService.getAll(pageRequestDtoIn)))
+                        .data(permissionService.getAll())
                         .build()
         );
     }

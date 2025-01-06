@@ -25,10 +25,10 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeHttpRequest ->
-                        authorizeHttpRequest.requestMatchers("/api/v1/auth/**", "/api/v1/docs/**", "/actuator/**")
-                                .permitAll()
-                                .anyRequest()
+                        authorizeHttpRequest.requestMatchers("/api/v1/builds/**", "/api/v1/vulnerabilities/**", "/api/v1/projects/**", "/api/v1/auth/change-password")
                                 .authenticated()
+                                .anyRequest()
+                                .permitAll()
                 )
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

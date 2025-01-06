@@ -8,4 +8,5 @@ import java.lang.annotation.*;
 public @interface Col {
     String value();
     boolean jsonString() default false;
+    boolean isTimestamp() default false;
 }

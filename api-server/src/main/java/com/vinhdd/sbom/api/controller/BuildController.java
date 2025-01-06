@@ -27,7 +27,9 @@ public class BuildController {
 
     @PostMapping("")
     public ResponseEntity<?> createBuild(@RequestParam("projectName") String projectName,
+                                         @RequestParam("repository") String repository,
                                          @RequestParam("pipelineName") String pipelineName,
+                                         @RequestParam("branch") String branch,
                                          @RequestParam("buildNumber") int buildNumber,
                                          @RequestParam("result") String result,
                                          @RequestParam("duration") long duration,
@@ -37,7 +39,7 @@ public class BuildController {
             SbomDto sbom = objectMapper.readValue(file.getInputStream(), SbomDto.class);
             log.info("SBOM: {}", sbom);
             LocalDateTime startAtDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(startAt), TimeZone.getDefault().toZoneId());
-            buildService.createBuild(projectName, pipelineName, buildNumber, result, duration, startAtDate, sbom);
+            buildService.createBuild(projectName, pipelineName, repository, branch, buildNumber, result, duration, startAtDate, sbom);
             return ResponseEntity.ok(
                     ApiResponse.builder()
                             .success(true)
@@ -58,6 +60,28 @@ public class BuildController {
                         .message("Compare builds successfully")
                         .success(true)
                         .data(buildService.compareBuilds(buildId1, buildId2))
+                        .build()
+        );
+    }
+
+    @GetMapping("/{buildId}/components")
+    public ResponseEntity<?> getComponentsOfBuild(@PathVariable("buildId") long buildId) {
+        return ResponseEntity.ok(
+                ApiResponse.builder()
+                        .message("Components retrieved successfully")
+                        .success(true)
+                        .data(buildService.getDetailComponentsByBuildId(buildId))
+                        .build()
+        );
+    }
+
+    @GetMapping("/{buildId}/dependencies")
+    public ResponseEntity<?> getDependenciesOfBuild(@PathVariable("buildId") long buildId) {
+        return ResponseEntity.ok(
+                ApiResponse.builder()
+                        .message("Dependencies retrieved successfully")
+                        .success(true)
+                        .data(buildService.getDependenciesByBuildId(buildId))
                         .build()
         );
     }

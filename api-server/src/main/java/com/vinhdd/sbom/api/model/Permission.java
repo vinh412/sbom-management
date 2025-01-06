@@ -1,8 +1,6 @@
 package com.vinhdd.sbom.api.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,15 +10,17 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 @Table(name = "permissions")
 public class Permission implements GrantedAuthority {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
+    private String name;
     private String description;
 
     @Override
     public String getAuthority() {
-        return this.getId();
+        return this.getName();
     }
 
     public SimpleGrantedAuthority toSimpleGrantedAuthority() {
-        return new SimpleGrantedAuthority(this.getId());
+        return new SimpleGrantedAuthority(this.getName());
     }
 }

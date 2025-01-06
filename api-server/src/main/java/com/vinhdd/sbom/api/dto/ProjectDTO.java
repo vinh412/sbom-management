@@ -12,6 +12,7 @@ public class ProjectDTO {
     private String id;
     private String name;
     private String description;
+    private String repository;
     private String createdAt;
     private String updatedAt;
 
@@ -20,6 +21,7 @@ public class ProjectDTO {
                 .id(project.getId())
                 .name(project.getName())
                 .description(project.getDescription())
+                .repository(project.getRepository())
                 .createdAt(project.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")))
                 .updatedAt(project.getUpdatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")))
                 .build();

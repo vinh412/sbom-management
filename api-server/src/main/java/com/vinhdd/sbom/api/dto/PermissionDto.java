@@ -7,13 +7,15 @@ import lombok.Data;
 @Data
 @Builder
 public class PermissionDto {
-    private String permission;
+    private Integer id;
+    private String name;
     private String description;
 
     public static PermissionDto from(Permission permission) {
         return PermissionDto.builder()
-            .permission(permission.getId())
-            .description(permission.getDescription())
-            .build();
+                .id(permission.getId())
+                .name(permission.getName())
+                .description(permission.getDescription())
+                .build();
     }
 }

@@ -25,13 +25,12 @@ public class PipelineController {
     private final BuildService buildService;
 
     @GetMapping("")
-    public ResponseEntity<?> getAllPipelinesOfProject(@PathVariable("projectName") String projectName,
-                                                      PageRequestDtoIn pageRequestDtoIn) {
+    public ResponseEntity<?> getAllPipelinesOfProject(@PathVariable("projectName") String projectName) {
         return ResponseEntity.ok(
                 ApiResponse.builder()
                         .success(true)
                         .message("Pipelines retrieved successfully")
-                        .data(new PagedModel<>(pipelineService.getAllByProjectName(projectName, pageRequestDtoIn)))
+                        .data(pipelineService.getAllByProjectName(projectName))
                         .build()
         );
     }

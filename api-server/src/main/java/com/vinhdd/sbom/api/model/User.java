@@ -23,6 +23,7 @@ public class User {
     private String email;
     private String phoneNumber;
     private String description;
+    private Integer status;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -37,4 +38,12 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "memberships",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "project_id")
+    )
+    private Set<Project> projects;
 }

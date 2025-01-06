@@ -2,14 +2,19 @@ package com.vinhdd.sbom.api.service;
 
 import com.vinhdd.sbom.api.dto.ProjectDTO;
 import com.vinhdd.sbom.api.dto.ProjectWithPipelinesDTO;
-import com.vinhdd.sbom.api.dto.in.PageRequestDtoIn;
 import com.vinhdd.sbom.api.dto.in.ProjectDtoIn;
-import org.springframework.data.domain.Page;
+import com.vinhdd.sbom.api.dto.out.MembershipDto;
+
+import java.util.List;
 
 public interface ProjectService {
-    Page<ProjectDTO> getAllProjects(PageRequestDtoIn pageRequestDtoIn);
+    List<ProjectDTO> getAllProjects();
     ProjectWithPipelinesDTO getProjectByName(String name);
     ProjectDTO createProject(ProjectDtoIn projectDtoIn);
     ProjectDTO updateProject(String projectId, ProjectDtoIn projectDtoIn);
     void deleteProject(String id);
+    List<MembershipDto> getAllMembers(String projectName);
+    void addMember(String projectId, String userId, Boolean isAdmin, List<String> pipelineIds);
+    void removeMember(String projectId, String userId);
+    void updateMemberPipeline(String projectId, String userId, Boolean isAdmin, List<String> pipelines);
 }

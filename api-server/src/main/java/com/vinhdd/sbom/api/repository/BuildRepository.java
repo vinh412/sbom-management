@@ -18,6 +18,4 @@ public interface BuildRepository extends JpaRepository<Build, Long> {
             "JOIN projects pr ON p.project_id = pr.id " +
             "WHERE pr.name = ?1 AND p.name = ?2 ORDER BY b.created_at DESC LIMIT 1", nativeQuery = true)
     Map<String, Object> findLatestBuild(String projectName, String pipelineName);
-
-
 }

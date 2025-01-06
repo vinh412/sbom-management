@@ -12,12 +12,14 @@ import java.util.stream.Collectors;
 public class RoleDto {
     private Long id;
     private String name;
+    private Boolean isDefault;
     private Set<PermissionDto> permissions;
 
     public static RoleDto from(Role role) {
         return RoleDto.builder()
                 .id(role.getId())
                 .name(role.getName())
+                .isDefault(role.getIsDefault())
                 .permissions(role.getPermissions().stream()
                         .map(PermissionDto::from)
                         .collect(Collectors.toSet()))
