@@ -62,11 +62,11 @@ function App() {
           loader: licenseDetailLoader
         },
         {
-          path: "/admin/users",
+          path: "/users",
           element: <UserManagementPage />
         },
         {
-          path: "/admin/users/:username",
+          path: "/users/:username",
           element: <UserDetail />,
           loader: userDetailLoader
         },

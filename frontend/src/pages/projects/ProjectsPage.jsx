@@ -1,10 +1,11 @@
 import { Button, Input, message, Pagination, Popconfirm, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import projectApi from "../../api/project";
-import { FaRegPenToSquare, FaRegTrashCan } from "react-icons/fa6";
+import { FaRegTrashCan } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import CreateProject from "./CreateProject";
 import EditProject from "./EditProject";
+import { hasAnyPermission, isSysAdmin } from "../../ultil";
 
 function ProjectsPage() {
   const [loading, setLoading] = useState(false);
@@ -140,7 +141,7 @@ function ProjectsPage() {
           justifyContent: "space-between",
         }}
       >
-        <CreateProject refresh={fetchProjects} />
+        {(isSysAdmin() || hasAnyPermission(['CREATE_PROJECT'])) ? <CreateProject refresh={fetchProjects} /> : <div></div>}
         <Input.Search
           style={{ width: "300px" }}
           placeholder="Search"

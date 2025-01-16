@@ -1,19 +1,14 @@
 import React, { useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
 import {
   Breadcrumb,
-  Button,
-  Dropdown,
   Layout,
   Menu,
-  Switch,
   theme,
-  Typography,
 } from "antd";
 import {
   ApartmentOutlined,
-  MoonOutlined,
   ProjectOutlined,
-  SunOutlined,
 } from "@ant-design/icons";
 import { FaShieldHalved, FaScaleBalanced } from "react-icons/fa6";
 import {
@@ -24,56 +19,62 @@ import {
   useNavigate,
 } from "react-router-dom";
 import MyHeader from "./header/MyHeader";
+import { isSysAdmin } from "../ultil";
 const { Content, Footer, Sider } = Layout;
 
-const sidebarItems = [
-  {
-    key: "0",
-    label: "Dashboard",
-    type: "group",
-    children: [
-      {
-        key: "1",
-        icon: <ProjectOutlined />,
-        label: <NavLink to="/projects">Projects</NavLink>,
-      },
-      {
-        key: "2",
-        icon: <ApartmentOutlined />,
-        label: <NavLink to="/components">Components</NavLink>,
-      },
-      {
-        key: "3",
-        icon: <FaShieldHalved />,
-        label: <NavLink to="/vulnerabilities">Vulnerabilities</NavLink>,
-      },
-      {
-        key: "4",
-        icon: <FaScaleBalanced />,
-        label: <NavLink to="/licenses">Licenses</NavLink>,
-      },
-    ],
-  },
-  {
-    key: "5",
-    label: "Administration",
-    type: "group",
-    children: [
-      {
-        key: "6",
-        label: <Link to="/admin/users">User Management</Link>,
-      },
-      {
-        key: "7",
-        label: <Link to="/roles">Role</Link>,
-      },
-      {
-        key: "8",
-        label: <Link to="/permissions">Permission</Link>,
-      },
-    ],
-  },
-];
+const createSidebarItems = () => {
+  const sideBarItems = [
+    {
+      key: "0",
+      label: "Dashboard",
+      type: "group",
+      children: [
+        {
+          key: "1",
+          icon: <ProjectOutlined />,
+          label: <NavLink to="/projects">Projects</NavLink>,
+        },
+        {
+          key: "2",
+          icon: <ApartmentOutlined />,
+          label: <NavLink to="/components">Components</NavLink>,
+        },
+        {
+          key: "3",
+          icon: <FaShieldHalved />,
+          label: <NavLink to="/vulnerabilities">Vulnerabilities</NavLink>,
+        },
+        {
+          key: "4",
+          icon: <FaScaleBalanced />,
+          label: <NavLink to="/licenses">Licenses</NavLink>,
+        },
+      ],
+    }
+  ];
+  if(isSysAdmin()) {
+    sideBarItems.push({
+      key: "5",
+      label: "Administration",
+      type: "group",
+      children: [
+        {
+          key: "6",
+          label: <Link to="/users">User Management</Link>,
+        },
+        {
+          key: "7",
+          label: <Link to="/roles">Role</Link>,
+        },
+        {
+          key: "8",
+          label: <Link to="/permissions">Permission</Link>,
+        },
+      ],
+    })
+  }
+  return sideBarItems;
+}
 
 const MyLayout = ({ setDarkMode }) => {
   const {
@@ -124,7 +125,7 @@ const MyLayout = ({ setDarkMode }) => {
             style={{
               borderRight: 0,
             }}
-            items={sidebarItems}
+            items={createSidebarItems()}
           />
         </Sider>
         <Layout

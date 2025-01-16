@@ -29,14 +29,22 @@ const projectApi = {
     const url = `/projects/members`;
     return axiosClient.post(url, data);
   },
-  removeMember: (projectId, userId) => {
-    const url = `/projects/${projectId}/members/${userId}`;
+  removeMember: (projectName, userId) => {
+    const url = `/projects/${projectName}/members/${userId}`;
     return axiosClient.delete(url);
   },
-  updateMember: (projectId, userId, data) => {
-    const url = `/projects/${projectId}/members/${userId}`;
+  updateMember: (projectName, userId, data) => {
+    const url = `/projects/${projectName}/members/${userId}`;
     return axiosClient.put(url, data);
-  }
+  },
+  getUsersNotInProject: (projectName) => {
+    const url = `/projects/${projectName}/users-not-in`;
+    return axiosClient.get(url);
+  },
+  getMembership: (projectName) => {
+    const url = `/projects/${projectName}/membership`;
+    return axiosClient.get(url);
+  },
 };
 
 export default projectApi;

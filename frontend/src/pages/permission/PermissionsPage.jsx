@@ -28,7 +28,13 @@ function PermissionsPage() {
     const fetchPermissions = async () => {
       const data = await permissionApi.getPermissions();
       setPermissions(data);
-      setFilteredPermissions(data.map((permission, index) => ({ ...permission, no: index + 1, key: index })));
+      setFilteredPermissions(
+        data.map((permission, index) => ({
+          ...permission,
+          no: index + 1,
+          key: index,
+        }))
+      );
     };
     fetchPermissions();
   }, []);
@@ -52,7 +58,7 @@ function PermissionsPage() {
           onChange={(value) => {
             setFilteredPermissions(
               permissions.filter((permission) =>
-                permission.permission.includes(value.target.value)
+                permission.name.includes(value.target.value)
               )
             );
           }}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Checkbox, Form, Input, message, Modal } from "antd";
+import { Button, Form, Input, message, Modal, Select } from "antd";
 import { FaRegPenToSquare } from "react-icons/fa6";
 import roleApi from "../../api/roles";
 const EditRole = ({ refresh, role, permissionsOptions }) => {
@@ -66,7 +66,7 @@ const EditRole = ({ refresh, role, permissionsOptions }) => {
           <Input />
         </Form.Item>
         <Form.Item name="permissionIds" label="Permissions">
-          <Checkbox.Group options={permissionsOptions} />
+          <Select mode="multiple" options={permissionsOptions} />
         </Form.Item>
       </Modal>
     </>

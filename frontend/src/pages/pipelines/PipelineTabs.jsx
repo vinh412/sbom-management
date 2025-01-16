@@ -19,9 +19,7 @@ function PipelineTabs({ components, dependencies, builds }) {
       key: "2",
       label: "Dependencies",
       children: (
-        <ReactFlowProvider>
-          <Board2 dependencies={dependencies} />,
-        </ReactFlowProvider>
+          <Board2 dependencies={dependencies} />
       ),
     },
     {

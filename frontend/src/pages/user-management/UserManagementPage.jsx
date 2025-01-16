@@ -111,7 +111,7 @@ function UserManagementPage() {
               ],
               onClick: (e) => {
                 if (e.key === "detail") {
-                  navigate(`/admin/users/${record.username}`);
+                  navigate(`${record.username}`);
                   console.log("detail", record);
                 } else if (e.key === "status") {
                   const title = "Are you sure to " + (record.status === 1 ? "block" : "unblock") + " user " + record.username + "?";

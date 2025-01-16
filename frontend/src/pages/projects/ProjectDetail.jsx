@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import pipelineApi from "../../api/pipeline";
-import { Button, Input, Pagination, Popconfirm, Table } from "antd";
-import { FaPlus, FaRegTrashCan } from "react-icons/fa6";
+import { Button, Input, Popconfirm, Table } from "antd";
+import { FaRegTrashCan } from "react-icons/fa6";
 import CreatePipeline from "../pipelines/CreatePipeline";
+import { isSysAdmin } from "../../ultil";
 
-function ProjectDetail() {
+function ProjectDetail({ projectName, membership }) {
   const [loading, setLoading] = useState(false);
   const [pipelines, setPipelines] = useState([]);
-
-  const params = useParams();
-  const projectName = params.projectName;
 
   const navigate = useNavigate();
 
@@ -127,7 +125,7 @@ function ProjectDetail() {
           justifyContent: "space-between",
         }}
       >
-        <CreatePipeline refresh={fetchPipelines} />
+        {(isSysAdmin() || membership.isAdmin) ? <CreatePipeline refresh={fetchPipelines} /> : <div></div>}
         <Input.Search
           style={{ width: "300px" }}
           placeholder="Search"

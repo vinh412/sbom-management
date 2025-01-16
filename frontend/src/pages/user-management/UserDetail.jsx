@@ -68,7 +68,7 @@ function UserDetail() {
                 if (isEdit) {
                   setIsEdit(false);
                 } else {
-                  navigate("/admin/users");
+                  navigate("/users");
                 }
               }}
             >
