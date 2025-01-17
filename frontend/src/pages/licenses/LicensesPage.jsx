@@ -20,7 +20,6 @@ function LicensesPage() {
       title: "Name",
       dataIndex: "name",
       key: "name",
-      sorter: true
     },
     {
       title: "SPDX License ID",

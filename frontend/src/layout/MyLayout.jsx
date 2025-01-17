@@ -34,11 +34,11 @@ const createSidebarItems = () => {
           icon: <ProjectOutlined />,
           label: <NavLink to="/projects">Projects</NavLink>,
         },
-        {
-          key: "2",
-          icon: <ApartmentOutlined />,
-          label: <NavLink to="/components">Components</NavLink>,
-        },
+        // {
+        //   key: "2",
+        //   icon: <ApartmentOutlined />,
+        //   label: <NavLink to="/components">Components</NavLink>,
+        // },
         {
           key: "3",
           icon: <FaShieldHalved />,

@@ -9,7 +9,6 @@ import { useParams } from "react-router-dom";
 function PipelinePage() {
   const [size, setSize] = useState(10);
   const [components, setComponents] = useState([]);
-  const [dependencies, setDependencies] = useState([]);
   const [licenses, setLicenses] = useState([]);
   const [vulnerabilities, setVulnerabilities] = useState([]);
   const [builds, setBuilds] = useState([]);
@@ -58,13 +57,8 @@ function PipelinePage() {
         })
       );
     };
-    const fetchDependencies = async () => {
-      const data = await buildApi.getDependenciesByBuildId(selectedBuild);
-      setDependencies(data);
-    };
     if(selectedBuild !== null){
       fetchComponents();
-      fetchDependencies();
     }
   }, [selectedBuild]);
 
@@ -89,7 +83,7 @@ function PipelinePage() {
           <BuildList builds={builds} setSelectedBuild={setSelectedBuild} selectedBuild={selectedBuild}/>
         </Col>
         <Col span={20}>
-          <PipelineTabs components={components} dependencies={dependencies} builds={builds} />
+          <PipelineTabs components={components} builds={builds} buildId={selectedBuild} />
         </Col>
       </Row>
     </div>

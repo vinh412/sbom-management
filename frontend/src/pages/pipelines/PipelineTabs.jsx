@@ -3,12 +3,12 @@ import { Tabs, theme } from "antd";
 import Board2 from "../dependencies/Board2";
 import CompareBuild from "./CompareBuild";
 import ComponentsTable from "./ComponentsTable";
-import { ReactFlowProvider } from "@xyflow/react";
+import Board from "../dependencies/Board";
 const onChange = (key) => {
   console.log(key);
 };
 
-function PipelineTabs({ components, dependencies, builds }) {
+function PipelineTabs({ components, builds, buildId }) {
   const items = [
     {
       key: "1",
@@ -19,7 +19,7 @@ function PipelineTabs({ components, dependencies, builds }) {
       key: "2",
       label: "Dependencies",
       children: (
-          <Board2 dependencies={dependencies} />
+          <Board buildId={buildId} />
       ),
     },
     {

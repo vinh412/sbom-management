@@ -1,10 +1,14 @@
-import { Table, theme, Tooltip, Typography } from "antd";
-import React from "react";
+import { Input, Table, theme, Tooltip, Typography } from "antd";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaBug, FaCheck  } from "react-icons/fa6";
 import { IoIosWarning } from "react-icons/io";
 
 function ComponentsTable({ dataSource }) {
+  const [filteredComponents, setFilteredComponents] = useState(dataSource);
+  useEffect(() => {
+    setFilteredComponents(dataSource);
+  }, [dataSource]);
   const {
     token: { red, yellow, orange, blue },
   } = theme.useToken();
@@ -42,7 +46,7 @@ function ComponentsTable({ dataSource }) {
               >
                 <IoIosWarning color={yellow} />
               </Tooltip>
-            ) : <FaCheck color="green" />}
+            ) : <Tooltip title="Latest version"><FaCheck color="green" /></Tooltip>}
           </span>
         );
       },
@@ -111,8 +115,15 @@ function ComponentsTable({ dataSource }) {
     },
   ];
   return (
-    <div>
-      <Table columns={columns} dataSource={dataSource} bordered />
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      gap: "8px",
+    }}>
+      <Input.Search placeholder="Search components" style={{width: "300px", alignSelf: "end"}} onSearch={(value) => {
+        setFilteredComponents(dataSource.filter((component) => component.name.includes(value) || component.groupName.includes(value)));
+      }}/>
+      <Table columns={columns} dataSource={filteredComponents} bordered />
     </div>
   );
 }
