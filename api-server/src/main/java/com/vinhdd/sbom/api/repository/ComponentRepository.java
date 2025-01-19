@@ -39,4 +39,14 @@ public interface ComponentRepository extends JpaRepository<Component, Long> {
             "JOIN builds b ON sc.sbom_id = b.sbom_id WHERE b.id = ?1", nativeQuery = true)
     List<Map<String, Object>> getComponentsOfBuild(Long buildId);
 
+
+    @Query(value = "SELECT c.*, COALESCE(json_agg(json_build_object('pipelineName', p.name, 'projectName', pr.name)) FILTER ( WHERE p.id IS NOT NULL ), '[]') as appear_in FROM components c " +
+            "JOIN sbom_component sc ON c.id = sc.component_id " +
+            "JOIN builds b ON sc.sbom_id = b.sbom_id " +
+            "JOIN pipelines p ON b.pipeline_id = p.id " +
+            "JOIN projects pr ON pr.id = p.project_id " +
+            "JOIN memberships ON pr.id = memberships.project_id " +
+            "WHERE 'SYS_ADMIN' IN (SELECT r.name FROM roles r JOIN user_role ur ON r.id = ur.role_id JOIN users u ON u.id = ur.user_id WHERE ur.user_id = ?1) OR memberships.user_id = ?1 GROUP BY c.id, p.id", nativeQuery = true)
+    List<Map<String, Object>> getComponents(String userId);
+
 }

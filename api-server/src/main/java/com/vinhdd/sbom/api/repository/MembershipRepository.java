@@ -11,5 +11,6 @@ import java.util.Optional;
 public interface MembershipRepository extends JpaRepository<Membership, String> {
     List<Membership> findAllByProjectName(String projectName);
     List<Membership> findAllByUserId(String userId);
+    Optional<Membership> findByProjectNameAndUserId(String projectName, String userId);
     Optional<Membership> findByProjectIdAndUserId(String projectId, String userId);
 }

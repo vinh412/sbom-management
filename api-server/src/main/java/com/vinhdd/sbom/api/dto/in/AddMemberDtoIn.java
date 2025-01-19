@@ -7,8 +7,8 @@ import java.util.List;
 
 @Data
 public class AddMemberDtoIn {
-    @NotBlank(message = "Project ID is required")
-    private String projectId;
+    @NotBlank(message = "Project name is required")
+    private String projectName;
     @NotBlank(message = "User ID is required")
     private String userId;
     private Boolean isAdmin = false;

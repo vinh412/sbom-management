@@ -3,10 +3,12 @@ package com.vinhdd.sbom.api.service.impl;
 import com.vinhdd.sbom.api.core.MavenPackageService;
 import com.vinhdd.sbom.api.core.NpmPackageService;
 import com.vinhdd.sbom.api.dto.out.DependencyDtoOut;
+import com.vinhdd.sbom.api.dto.queryout.ComponentQueryOut;
 import com.vinhdd.sbom.api.dto.sbomfile.ComponentDto;
 import com.vinhdd.sbom.api.model.Component;
 import com.vinhdd.sbom.api.repository.ComponentRepository;
 import com.vinhdd.sbom.api.repository.LicenseRepository;
+import com.vinhdd.sbom.api.service.AuthService;
 import com.vinhdd.sbom.api.service.ComponentService;
 import com.vinhdd.sbom.api.util.helper.QueryResultMapper;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class ComponentServiceImpl implements ComponentService {
     private final QueryResultMapper queryResultMapper;
     private final NpmPackageService npmPackageService;
     private final MavenPackageService mavenPackageService;
+    private final AuthService authService;
 
     @Override
     public List<Component> fromDtoList(List<ComponentDto> dtoList) {
@@ -47,6 +50,14 @@ public class ComponentServiceImpl implements ComponentService {
     @Override
     public DependencyDtoOut getDependenciesOfComponent(String purl) {
         return queryResultMapper.mapResult(componentRepository.getDirectDependenciesOfComponent(purl), DependencyDtoOut.class);
+    }
+
+    @Override
+    public List<ComponentQueryOut> getComponents() {
+        return componentRepository.getComponents(authService.getCurrentUser().getId())
+                .stream()
+                .map(component -> queryResultMapper.mapResult(component, ComponentQueryOut.class))
+                .collect(Collectors.toList());
     }
 
     @Scheduled()

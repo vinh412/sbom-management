@@ -4,6 +4,7 @@ import com.vinhdd.sbom.api.dto.ProjectDTO;
 import com.vinhdd.sbom.api.dto.ProjectWithPipelinesDTO;
 import com.vinhdd.sbom.api.dto.in.ProjectDtoIn;
 import com.vinhdd.sbom.api.dto.out.MembershipDto;
+import com.vinhdd.sbom.api.dto.queryout.UserNotInProjectQueryOut;
 import com.vinhdd.sbom.api.exception.NotFoundException;
 import com.vinhdd.sbom.api.model.CustomUserDetails;
 import com.vinhdd.sbom.api.model.Membership;
@@ -12,6 +13,7 @@ import com.vinhdd.sbom.api.model.User;
 import com.vinhdd.sbom.api.repository.*;
 import com.vinhdd.sbom.api.service.AuthService;
 import com.vinhdd.sbom.api.service.ProjectService;
+import com.vinhdd.sbom.api.util.helper.QueryResultMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +30,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final UserRepository userRepository;
     private final PipelineRepository pipelineRepository;
     private final AuthService authService;
+    private final QueryResultMapper queryResultMapper;
 
     @Override
     @Transactional
@@ -99,12 +102,12 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional
-    public void addMember(String projectId, String userId, Boolean isAdmin, List<String> pipelineIds) {
-        if(!authService.hasAnyRole("SYS_ADMIN") && !authService.isProjectAdmin(projectId)) {
+    public void addMember(String projectName, String userId, Boolean isAdmin, List<String> pipelineIds) {
+        Project project = projectRepository.findByName(projectName).orElseThrow(() -> new NotFoundException("Project not found"));
+        if(!authService.hasAnyRole("SYS_ADMIN") && !authService.isProjectAdmin(project.getId())) {
             throw new NotFoundException("Project not found");
         }
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new NotFoundException("Project not found"));
         Membership membership = new Membership();
         membership.setUser(user);
         membership.setProject(project);
@@ -114,22 +117,24 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void removeMember(String projectId, String userId) {
-        if(!authService.hasAnyRole("SYS_ADMIN") && !authService.isProjectAdmin(projectId)) {
+    public void removeMember(String projectName, String userId) {
+    Project project = projectRepository.findByName(projectName).orElseThrow(() -> new NotFoundException("Project not found"));
+        if(!authService.hasAnyRole("SYS_ADMIN") && !authService.isProjectAdmin(project.getId())) {
             throw new NotFoundException("Project not found");
         }
-        Membership membership = membershipRepository.findByProjectIdAndUserId(projectId, userId)
+        Membership membership = membershipRepository.findByProjectNameAndUserId(projectName, userId)
                 .orElseThrow(() -> new NotFoundException("Membership not found"));
         membershipRepository.delete(membership);
     }
 
     @Override
     @Transactional
-    public void updateMemberPipeline(String projectId, String userId, Boolean isAdmin, List<String> pipelineIds) {
-        if(!authService.hasAnyRole("SYS_ADMIN") && !authService.isProjectAdmin(projectId)) {
+    public void updateMemberPipeline(String projectName, String userId, Boolean isAdmin, List<String> pipelineIds) {
+        Project project = projectRepository.findByName(projectName).orElseThrow(() -> new NotFoundException("Project not found"));
+        if(!authService.hasAnyRole("SYS_ADMIN") && !authService.isProjectAdmin(project.getId())) {
             throw new NotFoundException("Project not found");
         }
-        Membership membership = membershipRepository.findByProjectIdAndUserId(projectId, userId)
+        Membership membership = membershipRepository.findByProjectNameAndUserId(projectName, userId)
                 .orElseThrow(() -> new NotFoundException("Membership not found"));
         if (pipelineIds != null) {
             membership.setPipelines(new HashSet<>(pipelineRepository.findAllById(pipelineIds)));
@@ -138,5 +143,21 @@ public class ProjectServiceImpl implements ProjectService {
             membership.setIsAdmin(isAdmin);
         }
         membershipRepository.save(membership);
+    }
+
+    @Override
+    public List<UserNotInProjectQueryOut> getAllUsersNotInProject(String projectName) {
+        return projectRepository.getAllUsersNotInProject(projectName)
+                .stream()
+                .map(result -> queryResultMapper.mapResult(result, UserNotInProjectQueryOut.class))
+                .toList();
+    }
+
+    @Override
+    public MembershipDto getMembership(String projectName) {
+        String userId = authService.getCurrentUser().getId();
+        Membership membership = membershipRepository.findByProjectNameAndUserId(projectName, userId)
+                .orElseThrow(() -> new NotFoundException("Membership not found"));
+        return MembershipDto.fromMembership(membership);
     }
 }
